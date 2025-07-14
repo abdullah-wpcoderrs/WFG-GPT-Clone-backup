@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-green: #66bb6a;
+  --light-green: #d4ed91;
+  --accent-green: #b9e769;
+  --soft-blue: #eaf9fd;
+  --border-gray: #e0e0e0;
+  --text-charcoal: #2c2c2c;
+  --bg-white: #ffffff;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+
+  /* ------------------------------------------------------------------
+   Button helpers
+   Use theme colors declared in tailwind.config.ts
+------------------------------------------------------------------ */
+
+  .btn-primary {
+    /* primary DEFAULT is #66BB6A */
+    @apply bg-primary text-white hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    /* secondary DEFAULT is #B9E769 */
+    @apply bg-secondary text-[#2C2C2C] hover:bg-secondary/90;
+  }
+}
