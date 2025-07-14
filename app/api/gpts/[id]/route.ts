@@ -1,32 +1,39 @@
 import { NextResponse } from "next/server"
-import { mockGPTs } from "@/lib/mock-data"
-import type { GPT } from "@/types"
+import { mockGptsData } from "@/lib/mock-gpts"
 
-const gpts: GPT[] = structuredClone(mockGPTs)
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const { id } = params
+  const gpt = mockGptsData.find((g) => g.id === id)
 
-interface Params {
-  params: { id: string }
+  if (gpt) {
+    return NextResponse.json(gpt)
+  } else {
+    return new NextResponse("GPT not found", { status: 404 })
+  }
 }
 
-/**
- * GET /api/gpts/:id
- */
-export async function GET(_req: Request, { params }: Params) {
-  const gpt = gpts.find((g) => g.id === params.id)
-  if (!gpt) {
-    return NextResponse.json({ message: "GPT not found" }, { status: 404 })
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const { id } = params
+  const initialLength = mockGptsData.length
+  const index = mockGptsData.findIndex((g) => g.id === id)
+
+  if (index !== -1) {
+    mockGptsData.splice(index, 1)
+    return new NextResponse(null, { status: 204 }) // No Content
+  } else {
+    return new NextResponse("GPT not found", { status: 404 })
   }
-  return NextResponse.json(gpt, { status: 200 })
 }
 
-/**
- * DELETE /api/gpts/:id
- */
-export async function DELETE(_req: Request, { params }: Params) {
-  const index = gpts.findIndex((g) => g.id === params.id)
-  if (index === -1) {
-    return NextResponse.json({ message: "GPT not found" }, { status: 404 })
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const { id } = params
+  const updatedGpt = await request.json()
+  const index = mockGptsData.findIndex((g) => g.id === id)
+
+  if (index !== -1) {
+    mockGptsData[index] = { ...mockGptsData[index], ...updatedGpt, updated_at: new Date().toISOString() }
+    return NextResponse.json(mockGptsData[index])
+  } else {
+    return new NextResponse("GPT not found", { status: 404 })
   }
-  const [deleted] = gpts.splice(index, 1)
-  return NextResponse.json(deleted, { status: 200 })
 }

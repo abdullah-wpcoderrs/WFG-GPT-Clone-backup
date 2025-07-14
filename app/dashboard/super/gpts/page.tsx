@@ -466,21 +466,22 @@ export default function SuperGPTsPage() {
       {/* GPTs Table */}
       <Card className="border-[#E0E0E0] shadow-none">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-2">
-          <CardTitle className="text-xl text-[#2C2C2C]">Organization GPTs</CardTitle>
-          <Button
-            asChild
-            size="sm"
-            className="btn-primary shadow-sm hover:shadow-md transition-all duration-200 w-full sm:w-auto"
-          >
-            <Link href="/dashboard/super/gpts/new">
+          <div className="flex flex-col">
+            <CardTitle className="text-xl text-[#2C2C2C]">Organization GPTs</CardTitle>
+            <CardDescription>
+              {filteredGPTs.length} GPT{filteredGPTs.length !== 1 ? "s" : ""} found
+            </CardDescription>
+          </div>
+          <Link href="/dashboard/super/gpts/new" passHref>
+            <Button
+              size="sm"
+              className="btn-primary shadow-sm hover:shadow-md transition-all duration-200 w-full sm:w-auto"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create New GPT
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </CardHeader>
-        <CardDescription>
-          {filteredGPTs.length} GPT{filteredGPTs.length !== 1 ? "s" : ""} found
-        </CardDescription>
         <CardContent>
           <Table>
             <TableHeader>
