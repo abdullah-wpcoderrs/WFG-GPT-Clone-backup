@@ -1,43 +1,37 @@
 "use client"
 
-import { useState } from "react"
-import { useAuth } from "@/hooks/use-auth"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
+  MoreHorizontal,
+  Eye,
+  MessageSquare,
   Brain,
   Users,
-  MessageSquare,
-  FileText,
-  BookOpen,
   BarChart3,
   Settings,
+  FileText,
+  BookOpen,
   Plus,
   Search,
-  MoreHorizontal,
-  Globe,
-  Lock,
-  TrendingUp,
-  Clock,
-  Edit,
-  Trash2,
 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import type { GPT } from "@/types"
 
+// Define navigation items for this dashboard section
 const navigationItems = [
   {
     name: "Team Dashboard",
@@ -64,6 +58,12 @@ const navigationItems = [
     description: "Team conversation history",
   },
   {
+    name: "My Chats",
+    href: "/dashboard/admin/chats",
+    icon: MessageSquare,
+    description: "My personal chat history",
+  },
+  {
     name: "Documents",
     href: "/dashboard/admin/documents",
     icon: FileText,
@@ -83,442 +83,164 @@ const navigationItems = [
   },
 ]
 
-const mockTeamGPTs = [
-  {
-    id: "gpt-1",
-    name: "LegalGPT",
-    description: "Specialized assistant for legal document review and compliance",
-    status: "active",
-    created_at: "2024-01-10T10:00:00Z",
-    updated_at: "2024-01-15T14:30:00Z",
-    usage_count: 156,
-    active_users: 8,
-    web_access: true,
-    team_only: true,
-    model: "GPT-4",
-    instructions: "You are a legal assistant specialized in contract review and compliance...",
-    knowledge_files: ["legal-guidelines.pdf", "compliance-checklist.docx"],
-  },
-  {
-    id: "gpt-2",
-    name: "FinanceBot",
-    description: "Financial analysis and reporting assistant",
-    status: "active",
-    created_at: "2024-01-08T14:20:00Z",
-    updated_at: "2024-01-14T11:45:00Z",
-    usage_count: 89,
-    active_users: 5,
-    web_access: false,
-    team_only: true,
-    model: "GPT-4",
-    instructions: "You are a financial analyst assistant that helps with reporting and analysis...",
-    knowledge_files: ["financial-templates.xlsx", "budget-guidelines.pdf"],
-  },
-  {
-    id: "gpt-3",
-    name: "HR Assistant",
-    description: "Human resources support and policy guidance",
-    status: "draft",
-    created_at: "2024-01-12T09:15:00Z",
-    updated_at: "2024-01-12T16:20:00Z",
-    usage_count: 12,
-    active_users: 2,
-    web_access: false,
-    team_only: true,
-    model: "GPT-3.5",
-    instructions: "You are an HR assistant that helps with policy questions and procedures...",
-    knowledge_files: ["employee-handbook.pdf"],
-  },
-]
-
 export default function AdminGPTsPage() {
-  const { user } = useAuth()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [selectedGPT, setSelectedGPT] = useState<any>(null)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [gpts, setGpts] = useState<GPT[]>([])
+  const [search, setSearch] = useState("")
+  const { toast } = useToast()
+  const router = useRouter()
 
-  // Form states
-  const [gptName, setGptName] = useState("")
-  const [gptDescription, setGptDescription] = useState("")
-  const [gptInstructions, setGptInstructions] = useState("")
-  const [webAccess, setWebAccess] = useState(false)
-  const [teamOnly, setTeamOnly] = useState(true)
-  const [selectedModel, setSelectedModel] = useState("GPT-4")
+  useEffect(() => {
+    const fetchGpts = async () => {
+      try {
+        const response = await fetch("/api/gpts", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
 
-  const filteredGPTs = mockTeamGPTs.filter(
-    (gpt) =>
-      gpt.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      gpt.description.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>
-      case "draft":
-        return <Badge className="bg-yellow-100 text-yellow-800">Draft</Badge>
-      case "inactive":
-        return <Badge className="bg-gray-100 text-gray-800">Inactive</Badge>
-      default:
-        return <Badge>{status}</Badge>
+        const data = await response.json()
+        setGpts(data)
+      } catch (error: any) {
+        console.error("Failed to fetch GPTs:", error)
+        toast({
+          title: "Error fetching GPTs",
+          description: error.message || "Failed to fetch GPTs",
+          variant: "destructive",
+        })
+      }
     }
-  }
 
-  const handleCreateGPT = () => {
-    console.log("Creating GPT:", {
-      name: gptName,
-      description: gptDescription,
-      instructions: gptInstructions,
-      webAccess,
-      teamOnly,
-      model: selectedModel,
-    })
-    setIsCreateDialogOpen(false)
-    resetForm()
-  }
+    fetchGpts()
+  }, [toast])
 
-  const handleEditGPT = (gpt: any) => {
-    setSelectedGPT(gpt)
-    setGptName(gpt.name)
-    setGptDescription(gpt.description)
-    setGptInstructions(gpt.instructions)
-    setWebAccess(gpt.web_access)
-    setTeamOnly(gpt.team_only)
-    setSelectedModel(gpt.model)
-    setIsEditDialogOpen(true)
-  }
-
-  const handleUpdateGPT = () => {
-    console.log("Updating GPT:", selectedGPT?.id, {
-      name: gptName,
-      description: gptDescription,
-      instructions: gptInstructions,
-      webAccess,
-      teamOnly,
-      model: selectedModel,
-    })
-    setIsEditDialogOpen(false)
-    resetForm()
-  }
-
-  const resetForm = () => {
-    setGptName("")
-    setGptDescription("")
-    setGptInstructions("")
-    setWebAccess(false)
-    setTeamOnly(true)
-    setSelectedModel("GPT-4")
-    setSelectedGPT(null)
-  }
-
-  const GPTFormDialog = ({ isOpen, onOpenChange, onSubmit, title, submitText }: any) => (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            Configure your team's AI assistant with custom instructions and capabilities.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="gpt-name">GPT Name</Label>
-              <Input
-                id="gpt-name"
-                value={gptName}
-                onChange={(e) => setGptName(e.target.value)}
-                placeholder="e.g., LegalGPT, FinanceBot"
-                className="border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="gpt-model">Model</Label>
-              <select
-                id="gpt-model"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full px-3 py-2 border border-[#E0E0E0] rounded-md focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-              >
-                <option value="GPT-4">GPT-4 (Recommended)</option>
-                <option value="GPT-3.5">GPT-3.5 Turbo</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="gpt-description">Description</Label>
-            <Input
-              id="gpt-description"
-              value={gptDescription}
-              onChange={(e) => setGptDescription(e.target.value)}
-              placeholder="Brief description of what this GPT does"
-              className="border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="gpt-instructions">System Instructions</Label>
-            <Textarea
-              id="gpt-instructions"
-              value={gptInstructions}
-              onChange={(e) => setGptInstructions(e.target.value)}
-              placeholder="Detailed instructions for how this GPT should behave and respond..."
-              rows={6}
-              className="border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="web-access" className="text-base font-medium">
-                  Web Access
-                </Label>
-                <p className="text-sm text-gray-500">Allow this GPT to browse the internet for current information</p>
-              </div>
-              <Switch id="web-access" checked={webAccess} onCheckedChange={setWebAccess} />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="team-only" className="text-base font-medium">
-                  Team Only
-                </Label>
-                <p className="text-sm text-gray-500">Restrict access to your team members only</p>
-              </div>
-              <Switch id="team-only" checked={teamOnly} onCheckedChange={setTeamOnly} />
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} className="btn-primary">
-            {submitText}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+  const filteredGPTs = gpts.filter((gpt) => gpt.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <DashboardLayout
       navigationItems={navigationItems}
       title="Team GPTs"
-      description="Create and manage AI assistants for your team."
+      description="Manage your team's AI assistants."
     >
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <Brain className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">{mockTeamGPTs.length}</p>
-                <p className="text-sm text-gray-600">Total GPTs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">
-                  {mockTeamGPTs.filter((g) => g.status === "active").length}
-                </p>
-                <p className="text-sm text-gray-600">Active GPTs</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <MessageSquare className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">
-                  {mockTeamGPTs.reduce((sum, gpt) => sum + gpt.usage_count, 0)}
-                </p>
-                <p className="text-sm text-gray-600">Total Usage</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <Users className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">
-                  {mockTeamGPTs.reduce((sum, gpt) => sum + gpt.active_users, 0)}
-                </p>
-                <p className="text-sm text-gray-600">Active Users</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search and Create */}
-      <Card className="border-[#E0E0E0] shadow-none">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search GPTs by name or description..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-                />
-              </div>
-            </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="btn-primary">
-              <Plus className="w-4 h-4 mr-2" />
-              Create GPT
-            </Button>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+        <h1 className="text-2xl font-bold text-[#2C2C2C]">Team GPTs</h1>
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="search"
+              placeholder="Search GPTs..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 w-full border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
+            />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* GPTs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredGPTs.map((gpt) => (
-          <Card key={gpt.id} className="border-[#E0E0E0] shadow-none card-hover">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-[#B9E769] rounded-lg flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-[#2C2C2C]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-[#2C2C2C]">{gpt.name}</h3>
-                    <p className="text-sm text-gray-500">{gpt.model}</p>
-                  </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleEditGPT(gpt)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit GPT
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      View Chats
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Analytics
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div className="flex items-center space-x-2 mb-3">
-                {getStatusBadge(gpt.status)}
-                {gpt.web_access && (
-                  <Badge variant="outline" className="text-xs">
-                    <Globe className="w-3 h-3 mr-1" />
-                    Web Access
-                  </Badge>
-                )}
-                {gpt.team_only && (
-                  <Badge variant="outline" className="text-xs">
-                    <Lock className="w-3 h-3 mr-1" />
-                    Team Only
-                  </Badge>
-                )}
-              </div>
-
-              <p className="text-sm text-gray-600 mb-4 line-clamp-2">{gpt.description}</p>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Usage Count:</span>
-                  <span className="font-medium">{gpt.usage_count}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Active Users:</span>
-                  <span className="font-medium">{gpt.active_users}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Knowledge Files:</span>
-                  <span className="font-medium">{gpt.knowledge_files.length}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-3 h-3" />
-                  <span>Updated {formatDate(gpt.updated_at)}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+          <Button
+            onClick={() => router.push("/dashboard/admin/gpts/new")}
+            className="btn-primary w-full sm:w-auto shadow-sm transition-all duration-200 hover:shadow-md"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Create New GPT
+          </Button>
+        </div>
       </div>
+      <Table>
+        <TableCaption>A list of your team's custom GPTs.</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Team</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredGPTs.length > 0 ? (
+            filteredGPTs.map((gpt) => (
+              <TableRow key={gpt.id}>
+                <TableCell className="font-medium">{gpt.id}</TableCell>
+                <TableCell>{gpt.name}</TableCell>
+                <TableCell>{gpt.description}</TableCell>
+                <TableCell>{gpt.team_name}</TableCell>
+                <TableCell>{new Date(gpt.created_at).toLocaleDateString()}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem>
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/admin/chats/${gpt.id}`}>
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Open Chat
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          // Assuming an edit page exists, e.g., /dashboard/admin/gpts/edit/[id]
+                          router.push(`/dashboard/admin/gpts/edit/${gpt.id}`)
+                        }}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(`/api/gpts/${gpt.id}`, {
+                              method: "DELETE",
+                            })
 
-      {filteredGPTs.length === 0 && (
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="text-center py-12">
-            <Brain className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No GPTs found</h3>
-            <p className="text-gray-500 mb-6">
-              {searchQuery ? "No GPTs match your search criteria." : "Create your first team GPT to get started."}
-            </p>
-            {!searchQuery && (
-              <Button onClick={() => setIsCreateDialogOpen(true)} className="btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Your First GPT
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
+                            if (!response.ok) {
+                              throw new Error(`HTTP error! status: ${response.status}`)
+                            }
 
-      {/* Create GPT Dialog */}
-      <GPTFormDialog
-        isOpen={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onSubmit={handleCreateGPT}
-        title="Create New GPT"
-        submitText="Create GPT"
-      />
+                            setGpts((prevGpts) => prevGpts.filter((g) => g.id !== gpt.id))
 
-      {/* Edit GPT Dialog */}
-      <GPTFormDialog
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onSubmit={handleUpdateGPT}
-        title="Edit GPT"
-        submitText="Update GPT"
-      />
+                            toast({
+                              title: "GPT deleted",
+                              description: `${gpt.name} has been deleted.`,
+                            })
+                          } catch (error: any) {
+                            console.error("Failed to delete GPT:", error)
+                            toast({
+                              title: "Error deleting GPT",
+                              description: error.message || "Failed to delete GPT",
+                              variant: "destructive",
+                            })
+                          }
+                        }}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="h-24 text-center">
+                No GPTs found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </DashboardLayout>
   )
 }

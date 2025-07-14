@@ -40,7 +40,10 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
+  MessageSquare,
+  Plus,
 } from "lucide-react"
+import Link from "next/link"
 
 const navigationItems = [
   {
@@ -462,12 +465,22 @@ export default function SuperGPTsPage() {
 
       {/* GPTs Table */}
       <Card className="border-[#E0E0E0] shadow-none">
-        <CardHeader>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-2">
           <CardTitle className="text-xl text-[#2C2C2C]">Organization GPTs</CardTitle>
-          <CardDescription>
-            {filteredGPTs.length} GPT{filteredGPTs.length !== 1 ? "s" : ""} found
-          </CardDescription>
+          <Button
+            asChild
+            size="sm"
+            className="btn-primary shadow-sm hover:shadow-md transition-all duration-200 w-full sm:w-auto"
+          >
+            <Link href="/dashboard/super/gpts/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Create New GPT
+            </Link>
+          </Button>
         </CardHeader>
+        <CardDescription>
+          {filteredGPTs.length} GPT{filteredGPTs.length !== 1 ? "s" : ""} found
+        </CardDescription>
         <CardContent>
           <Table>
             <TableHeader>
@@ -558,6 +571,12 @@ export default function SuperGPTsPage() {
                         <DropdownMenuItem>
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/super/chats/${gpt.id}`}>
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            Open Chat
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Edit className="w-4 h-4 mr-2" />

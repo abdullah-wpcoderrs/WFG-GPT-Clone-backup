@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Brain, Users, Building2, FileText, BookOpen, BarChart3, Settings, Shield } from "lucide-react"
+import { Brain, Users, Building2, FileText, BookOpen, BarChart3, Settings, Shield, MessageSquare } from "lucide-react"
 
 const navigationItems = [
   {
@@ -40,6 +40,12 @@ const navigationItems = [
     href: "/dashboard/super/prompts",
     icon: BookOpen,
     description: "Organization prompt templates",
+  },
+  {
+    name: "My Chats", // New navigation item for personal chat history
+    href: "/dashboard/super/chats",
+    icon: MessageSquare,
+    description: "My personal chat history",
   },
   {
     name: "System Settings",

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { mockGPTs } from "@/lib/mock-data"
 import { Brain, MessageSquare, FolderOpen, BookOpen, FileText, Settings, TrendingUp, Users, Clock } from "lucide-react"
+import Link from "next/link"
 
 const navigationItems = [
   {
@@ -153,7 +154,9 @@ export default function UserDashboard() {
                     </div>
                   </div>
 
-                  <Button className="w-full btn-primary">Open Chat</Button>
+                  <Button asChild className="w-full btn-primary">
+                    <Link href={`/dashboard/user/chats/${gpt.id}`}>Open Chat</Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}

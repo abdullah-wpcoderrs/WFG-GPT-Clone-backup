@@ -21,18 +21,30 @@ export interface GPT {
   team_name: string
   last_used: string
   usage_count: number
-  status: "active" | "inactive"
+  status: "active" | "inactive" | "pending" | "suspended"
   created_by: string
   web_access: boolean
+  approval_status?: "approved" | "pending" | "rejected"
+  created_at?: string
+  updated_at?: string
+  active_users?: number
+  model?: string
+  monthly_cost?: number
+  compliance_score?: number
+  risk_level?: "low" | "medium" | "high"
+  access_level?: "team" | "organization"
 }
 
 export interface ChatSession {
   id: string
   user_id: string
   gpt_id: string
+  gpt_name: string
   title: string
   created_at: string
   updated_at: string
+  message_count: number
+  status: "active" | "completed" | "archived"
 }
 
 export interface ChatMessage {
