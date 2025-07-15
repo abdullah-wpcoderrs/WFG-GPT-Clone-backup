@@ -12,109 +12,67 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import {
   Brain,
   MessageSquare,
-  FolderOpen,
-  BookOpen,
   FileText,
+  FolderOpen,
   Settings,
+  User,
   Search,
   MoreHorizontal,
   Calendar,
   Clock,
+  Eye,
 } from "lucide-react"
+import { mockChatSessions } from "@/lib/mock-data"
+import Link from "next/link"
 
 const navigationItems = [
   {
-    name: "My GPT Tools",
+    name: "My Dashboard",
     href: "/dashboard/user",
-    icon: Brain,
-    description: "Access your assigned GPTs",
+    icon: User,
+    description: "Personal overview",
   },
   {
-    name: "My Chats",
+    name: "Chat with GPTs",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history & sessions",
+    description: "AI conversations",
   },
   {
     name: "My Projects",
     href: "/dashboard/user/projects",
     icon: FolderOpen,
-    description: "Organized chat folders",
+    description: "Project workspace",
   },
   {
-    name: "Prompt Library",
-    href: "/dashboard/user/prompts",
-    icon: BookOpen,
-    description: "Saved prompt templates",
-  },
-  {
-    name: "Team Documents",
+    name: "My Docs",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Shared team resources",
+    description: "Document library",
+  },
+  {
+    name: "My Prompts",
+    href: "/dashboard/user/prompts",
+    icon: Brain,
+    description: "Saved prompts",
   },
   {
     name: "Settings",
     href: "/dashboard/user/settings",
     icon: Settings,
-    description: "Profile & preferences",
+    description: "Account settings",
   },
 ]
 
-const mockChats = [
-  {
-    id: "chat-1",
-    title: "Draft NDA for vendor partnership",
-    gpt_name: "LegalGPT",
-    created_at: "2024-01-15T14:30:00Z",
-    updated_at: "2024-01-15T15:45:00Z",
-    message_count: 12,
-    status: "completed",
-  },
-  {
-    id: "chat-2",
-    title: "Q2 Strategic analysis report",
-    gpt_name: "ReportWriter",
-    created_at: "2024-01-14T11:15:00Z",
-    updated_at: "2024-01-14T16:20:00Z",
-    message_count: 8,
-    status: "active",
-  },
-  {
-    id: "chat-3",
-    title: "Review contract terms and conditions",
-    gpt_name: "LegalGPT",
-    created_at: "2024-01-13T16:45:00Z",
-    updated_at: "2024-01-13T17:30:00Z",
-    message_count: 15,
-    status: "completed",
-  },
-  {
-    id: "chat-4",
-    title: "Employee onboarding checklist",
-    gpt_name: "ReportWriter",
-    created_at: "2024-01-12T09:20:00Z",
-    updated_at: "2024-01-12T10:45:00Z",
-    message_count: 6,
-    status: "archived",
-  },
-  {
-    id: "chat-5",
-    title: "Policy compliance review",
-    gpt_name: "LegalGPT",
-    created_at: "2024-01-11T13:10:00Z",
-    updated_at: "2024-01-11T14:25:00Z",
-    message_count: 9,
-    status: "completed",
-  },
-]
-
-export default function ChatsPage() {
-  const { user } = useAuth()
+export default function UserChatsPage() {
+  const { user } = useAuth() // Assuming user is user-1 for mock data
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
 
-  const filteredChats = mockChats.filter((chat) => {
+  // Filter chats for the current user
+  const userChats = mockChatSessions.filter((session) => session.user_id === "user-1")
+
+  const filteredChats = userChats.filter((chat) => {
     const matchesSearch =
       chat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.gpt_name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -148,7 +106,7 @@ export default function ChatsPage() {
     <DashboardLayout
       navigationItems={navigationItems}
       title="My Chats"
-      description="View and manage your conversation history with AI assistants."
+      description="View and continue your conversation history with AI assistants."
     >
       {/* Search and Filters */}
       <Card className="border-[#E0E0E0] shadow-none">
@@ -222,7 +180,12 @@ export default function ChatsPage() {
                         <MessageSquare className="w-4 h-4 text-[#2C2C2C]" />
                       </div>
                       <div>
-                        <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
+                        <Link
+                          href={`/dashboard/user/chats/session/${chat.id}`}
+                          className="font-medium text-[#2C2C2C] hover:text-[#66BB6A] hover:underline"
+                        >
+                          {chat.title}
+                        </Link>
                       </div>
                     </div>
                   </TableCell>
@@ -256,7 +219,12 @@ export default function ChatsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Continue Chat</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/user/chats/session/${chat.id}`}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Continue Chat
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Save to Project</DropdownMenuItem>
                         <DropdownMenuItem>Export</DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>

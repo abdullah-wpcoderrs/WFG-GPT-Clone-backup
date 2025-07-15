@@ -23,49 +23,49 @@ const navigationItems = [
     name: "Team Dashboard",
     href: "/dashboard/admin",
     icon: BarChart3,
-    description: "Team overview & metrics",
+    description: "Team metrics",
   },
   {
     name: "Team GPTs",
     href: "/dashboard/admin/gpts",
     icon: Brain,
-    description: "Manage team AI assistants",
+    description: "Team GPTs",
   },
   {
     name: "Team Members",
     href: "/dashboard/admin/members",
     icon: Users,
-    description: "User management & activity",
+    description: "Team members",
   },
   {
     name: "Chat Logs",
     href: "/dashboard/admin/logs",
     icon: MessageSquare,
-    description: "Team conversation history",
+    description: "Chat logs",
   },
   {
     name: "My Chats", // New navigation item for personal chat history
     href: "/dashboard/admin/chats",
     icon: MessageSquare,
-    description: "My personal chat history",
+    description: "My chats",
   },
   {
     name: "Documents",
     href: "/dashboard/admin/documents",
     icon: FileText,
-    description: "Team document library",
+    description: "Docs",
   },
   {
     name: "Prompt Templates",
     href: "/dashboard/admin/templates",
     icon: BookOpen,
-    description: "Team prompt library",
+    description: "Prompts",
   },
   {
     name: "Settings",
     href: "/dashboard/admin/settings",
     icon: Settings,
-    description: "Team configuration",
+    description: "Settings",
   },
 ]
 

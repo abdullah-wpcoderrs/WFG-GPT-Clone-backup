@@ -52,7 +52,7 @@ const navigationItems = [
     description: "Team conversation history",
   },
   {
-    name: "My Chats", // New navigation item for personal chat history
+    name: "My Chats",
     href: "/dashboard/admin/chats",
     icon: MessageSquare,
     description: "My personal chat history",
@@ -193,7 +193,12 @@ export default function AdminChatsPage() {
                         <MessageSquare className="w-4 h-4 text-[#2C2C2C]" />
                       </div>
                       <div>
-                        <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
+                        <Link
+                          href={`/dashboard/admin/chats/session/${chat.id}`}
+                          className="font-medium text-[#2C2C2C] hover:text-[#66BB6A] hover:underline"
+                        >
+                          {chat.title}
+                        </Link>
                       </div>
                     </div>
                   </TableCell>
@@ -228,7 +233,7 @@ export default function AdminChatsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/admin/chats/${chat.gpt_id}`}>
+                          <Link href={`/dashboard/admin/chats/session/${chat.id}`}>
                             <Eye className="w-4 h-4 mr-2" />
                             Continue Chat
                           </Link>

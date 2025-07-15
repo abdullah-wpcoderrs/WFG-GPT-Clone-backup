@@ -39,7 +39,7 @@ const navigationItems = [
     name: "All GPTs",
     href: "/dashboard/super/gpts",
     icon: Brain,
-    description: "Organization GPT management",
+    description: "Org GPT management",
   },
   {
     name: "User Management",
@@ -48,25 +48,25 @@ const navigationItems = [
     description: "All users & permissions",
   },
   {
-    name: "Teams & Units",
+    name: "Teams",
     href: "/dashboard/super/teams",
     icon: Building2,
-    description: "Team structure & assignments",
+    description: "Team structure",
   },
   {
-    name: "Document Library",
+    name: "Doc Library",
     href: "/dashboard/super/documents",
     icon: FileText,
-    description: "Global document management",
+    description: "Global docs",
   },
   {
     name: "Prompt Library",
     href: "/dashboard/super/prompts",
     icon: BookOpen,
-    description: "Organization prompt templates",
+    description: "Org prompt templates",
   },
   {
-    name: "My Chats", // New navigation item for personal chat history
+    name: "My Chats",
     href: "/dashboard/super/chats",
     icon: MessageSquare,
     description: "My personal chat history",
@@ -201,7 +201,12 @@ export default function SuperAdminChatsPage() {
                         <MessageSquare className="w-4 h-4 text-[#2C2C2C]" />
                       </div>
                       <div>
-                        <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
+                        <Link
+                          href={`/dashboard/super/chats/session/${chat.id}`}
+                          className="font-medium text-[#2C2C2C] hover:text-[#66BB6A] hover:underline"
+                        >
+                          {chat.title}
+                        </Link>
                       </div>
                     </div>
                   </TableCell>
@@ -236,7 +241,7 @@ export default function SuperAdminChatsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/super/chats/${chat.gpt_id}`}>
+                          <Link href={`/dashboard/super/chats/session/${chat.id}`}>
                             <Eye className="w-4 h-4 mr-2" />
                             Continue Chat
                           </Link>

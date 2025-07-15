@@ -16,6 +16,7 @@ interface ChatInterfaceProps {
   gptName: string
   gptDescription: string
   initialMessages?: ChatMessageType[]
+  sessionId?: string
   onSendMessage?: (message: string) => void
   onNewChat?: () => void
 }
@@ -24,6 +25,7 @@ export function ChatInterface({
   gptName,
   gptDescription,
   initialMessages = [],
+  sessionId,
   onSendMessage,
   onNewChat,
 }: ChatInterfaceProps) {
@@ -33,7 +35,11 @@ export function ChatInterface({
       role: msg.sender === "user" ? "user" : "assistant",
       content: msg.content,
     })),
-    api: "/api/chat", // This will be a mock API route
+    api: "/api/chat",
+    body: {
+      sessionId: sessionId,
+      gptName: gptName,
+    },
   })
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -58,6 +64,7 @@ export function ChatInterface({
         <CardTitle className="text-xl text-[#2C2C2C] flex items-center">
           <Brain className="h-5 w-5 mr-2 text-[#66BB6A]" />
           {gptName}
+          {sessionId && <span className="ml-2 text-sm text-gray-500 font-normal">Session: {sessionId.slice(-8)}</span>}
         </CardTitle>
         <p className="text-sm text-gray-600">{gptDescription}</p>
       </CardHeader>
@@ -75,7 +82,7 @@ export function ChatInterface({
                 )}
               </div>
             )}
-            {messages.map((m) => (
+            {messages.map((m, index) => (
               <div
                 key={m.id}
                 className={cn("flex items-start gap-3", m.role === "user" ? "justify-end" : "justify-start")}
@@ -95,7 +102,13 @@ export function ChatInterface({
                       : "bg-gray-100 text-[#2C2C2C] rounded-bl-none border border-[#E0E0E0]",
                   )}
                 >
-                  <p className="text-sm">{m.content}</p>
+                  <p className="text-sm whitespace-pre-wrap">{m.content}</p>
+                  {/* Show timestamp for existing messages */}
+                  {index < initialMessages.length && (
+                    <p className="text-xs opacity-70 mt-1">
+                      {new Date(initialMessages[index]?.created_at || "").toLocaleTimeString()}
+                    </p>
+                  )}
                 </div>
                 {m.role === "user" && (
                   <Avatar className="h-8 w-8 border border-[#E0E0E0]">
@@ -104,6 +117,28 @@ export function ChatInterface({
                 )}
               </div>
             ))}
+            {isLoading && (
+              <div className="flex items-start gap-3 justify-start">
+                <Avatar className="h-8 w-8 border border-[#E0E0E0]">
+                  <AvatarFallback className="bg-[#B9E769] text-[#2C2C2C]">
+                    <Brain className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-gray-100 text-[#2C2C2C] rounded-lg rounded-bl-none border border-[#E0E0E0] p-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
@@ -111,13 +146,13 @@ export function ChatInterface({
       <CardFooter className="border-t border-[#E0E0E0] p-4">
         <form onSubmit={handleFormSubmit} className="flex w-full gap-2">
           <Input
-            placeholder="Type your message..."
+            placeholder={`Continue your conversation with ${gptName}...`}
             value={input}
             onChange={handleInputChange}
             className="flex-1 border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !input.trim()}>
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>
           </Button>

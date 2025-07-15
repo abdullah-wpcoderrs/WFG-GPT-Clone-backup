@@ -5,46 +5,46 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { mockGPTs } from "@/lib/mock-data"
-import { Brain, MessageSquare, FolderOpen, BookOpen, FileText, Settings, TrendingUp, Users, Clock } from "lucide-react"
+import { mockGPTs, mockChatSessions } from "@/lib/mock-data" // Import mockChatSessions
+import { Brain, MessageSquare, FolderOpen, FileText, Settings, TrendingUp, Users, Clock, User } from "lucide-react"
 import Link from "next/link"
 
 const navigationItems = [
   {
-    name: "My GPT Tools",
+    name: "My Dashboard",
     href: "/dashboard/user",
-    icon: Brain,
-    description: "Access your assigned GPTs",
+    icon: User,
+    description: "Personal overview",
   },
   {
-    name: "My Chats",
+    name: "Chat with GPTs",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history & sessions",
+    description: "AI conversations",
   },
   {
     name: "My Projects",
     href: "/dashboard/user/projects",
     icon: FolderOpen,
-    description: "Organized chat folders",
+    description: "Project workspace",
   },
   {
-    name: "Prompt Library",
-    href: "/dashboard/user/prompts",
-    icon: BookOpen,
-    description: "Saved prompt templates",
-  },
-  {
-    name: "Team Documents",
+    name: "My Docs",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Shared team resources",
+    description: "Document library",
+  },
+  {
+    name: "My Prompts",
+    href: "/dashboard/user/prompts",
+    icon: Brain,
+    description: "Saved prompts",
   },
   {
     name: "Settings",
     href: "/dashboard/user/settings",
     icon: Settings,
-    description: "Profile & preferences",
+    description: "Account settings",
   },
 ]
 
@@ -53,6 +53,26 @@ export default function UserDashboard() {
 
   // Filter GPTs for user's team or organization-wide
   const userGPTs = mockGPTs.filter((gpt) => gpt.team_name === user?.team_name || gpt.team_name === "Organization-wide")
+
+  // Get recent chats for the current user (assuming user-1 for mock data)
+  const recentChats = mockChatSessions
+    .filter((session) => session.user_id === "user-1")
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+    .slice(0, 3) // Get the 3 most recent chats
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
   return (
     <DashboardLayout
@@ -172,35 +192,30 @@ export default function UserDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[
-              { gpt: "LegalGPT", title: "Draft NDA for vendor partnership", date: "Jul 10", time: "2:30 PM" },
-              { gpt: "ReportWriter", title: "Q2 Strategic analysis report", date: "Jul 9", time: "11:15 AM" },
-              { gpt: "LegalGPT", title: "Review contract terms and conditions", date: "Jul 8", time: "4:45 PM" },
-            ].map((chat, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-4 border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-[#B9E769] rounded-lg flex items-center justify-center">
-                    <Brain className="w-4 h-4 text-[#2C2C2C]" />
+            {recentChats.map((chat) => (
+              <Link key={chat.id} href={`/dashboard/user/chats/session/${chat.id}`}>
+                <div className="flex items-center justify-between p-4 border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-8 h-8 bg-[#B9E769] rounded-lg flex items-center justify-center">
+                      <Brain className="w-4 h-4 text-[#2C2C2C]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
+                      <p className="text-sm text-gray-600">{chat.gpt_name}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
-                    <p className="text-sm text-gray-600">{chat.gpt}</p>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">{formatDate(chat.updated_at)}</p>
+                    <p className="text-xs text-gray-500">{formatTime(chat.updated_at)}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">{chat.date}</p>
-                  <p className="text-xs text-gray-500">{chat.time}</p>
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
 
           <div className="mt-6 text-center">
-            <Button variant="outline" className="border-[#E0E0E0] bg-transparent">
-              View All Chats
+            <Button asChild variant="outline" className="border-[#E0E0E0] bg-transparent">
+              <Link href="/dashboard/user/chats">View All Chats</Link>
             </Button>
           </div>
         </CardContent>
