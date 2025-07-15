@@ -83,6 +83,12 @@ const navigationItems = [
     description: "Organization prompt templates",
   },
   {
+    name: "Chat History",
+    href: "/dashboard/super/chats",
+    icon: MessageSquare,
+    description: "All chat conversations",
+  },
+  {
     name: "System Settings",
     href: "/dashboard/super/settings",
     icon: Settings,
@@ -579,9 +585,11 @@ export default function SuperGPTsPage() {
                             Open Chat
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit GPT
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/super/gpts/edit/${gpt.id}`}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit GPT
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <BarChart3 className="w-4 h-4 mr-2" />

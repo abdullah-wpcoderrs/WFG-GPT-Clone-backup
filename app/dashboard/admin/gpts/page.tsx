@@ -189,6 +189,12 @@ export default function AdminGPTsPage() {
                           Open Chat
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/admin/gpts/edit/${gpt.id}`}>
+                          <Settings className="w-4 h-4 mr-2" />
+                          Edit GPT
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => {
