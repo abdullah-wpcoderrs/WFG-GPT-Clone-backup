@@ -1,6 +1,6 @@
 "use client"
 
-import type * as React from "react"
+import type React from "react"
 import { useState, useEffect } from "react"
 import {
   Brain,
@@ -13,6 +13,8 @@ import {
   BookOpen,
   BarChart3,
   Settings,
+  Trash2,
+  Save,
 } from "lucide-react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,19 +26,30 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { ChatInterface } from "@/components/chat/chat-interface"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { GPT } from "@/types"
 import AdminEditGPTLoading from "@/components/admin-edit-gpt-loading"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
-// Define navigation items for the admin dashboard - CORRECTED FOR CONSISTENCY
+// Define navigation items for the admin dashboard
 const navigationItems = [
   {
     name: "Team Dashboard",
     href: "/dashboard/admin",
     icon: BarChart3,
-    description: "Team overview & metrics",
+    description: "Team performance metrics",
   },
   {
     name: "Team GPTs",
@@ -48,19 +61,7 @@ const navigationItems = [
     name: "Team Members",
     href: "/dashboard/admin/members",
     icon: Users,
-    description: "User management & activity",
-  },
-  {
-    name: "Chat Logs",
-    href: "/dashboard/admin/logs",
-    icon: MessageSquare,
-    description: "Team conversation history",
-  },
-  {
-    name: "My Chats",
-    href: "/dashboard/admin/chats",
-    icon: MessageSquare,
-    description: "My personal chat history",
+    description: "Manage team members",
   },
   {
     name: "Documents",
@@ -69,10 +70,22 @@ const navigationItems = [
     description: "Team document library",
   },
   {
-    name: "Prompt Templates",
+    name: "Templates",
     href: "/dashboard/admin/templates",
     icon: BookOpen,
-    description: "Team prompt library",
+    description: "Team prompt templates",
+  },
+  {
+    name: "Chat History",
+    href: "/dashboard/admin/chats",
+    icon: MessageSquare,
+    description: "Team chat conversations",
+  },
+  {
+    name: "Activity Logs",
+    href: "/dashboard/admin/logs",
+    icon: FileText,
+    description: "Team activity monitoring",
   },
   {
     name: "Settings",
@@ -94,12 +107,14 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
   const [gptDescription, setGptDescription] = useState("")
   const [gptInstructions, setGptInstructions] = useState("")
   const [webAccess, setWebAccess] = useState(false)
-  const [teamOnly, setTeamOnly] = useState(true) // Admins can only manage team-level GPTs
+  const [teamWide, setTeamWide] = useState(true)
   const [selectedModel, setSelectedModel] = useState("GPT-4")
   const [knowledgeFiles, setKnowledgeFiles] = useState<File[]>([])
+  const [status, setStatus] = useState<"active" | "inactive" | "pending">("pending")
+  const [approvalRequired, setApprovalRequired] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const { toast } = useToast()
+  const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -117,15 +132,13 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
         setGptDescription(gptData.description || "")
         setGptInstructions(gptData.instructions || "")
         setWebAccess(gptData.web_access || false)
-        setTeamOnly(gptData.access_level === "team") // Admins can only edit team-level GPTs
+        setTeamWide(gptData.access_level === "team")
         setSelectedModel(gptData.model || "GPT-4")
+        setStatus(gptData.status || "pending")
+        setApprovalRequired(gptData.approval_required || true)
       } catch (error: any) {
         console.error("Failed to fetch GPT:", error)
-        toast({
-          title: "Error loading GPT",
-          description: error.message || "Failed to load GPT data",
-          variant: "destructive",
-        })
+        toast.error("Failed to load GPT data")
         router.push("/dashboard/admin/gpts")
       } finally {
         setIsLoading(false)
@@ -133,7 +146,7 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
     }
 
     fetchGPT()
-  }, [params.id, toast, router])
+  }, [params.id, router])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -151,10 +164,12 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
       const updatedGPT: Partial<GPT> = {
         name: gptName,
         description: gptDescription,
-        web_access: webAccess,
-        model: selectedModel,
         instructions: gptInstructions,
-        access_level: teamOnly ? "team" : "organization", // Ensure access level is maintained
+        web_access: webAccess,
+        access_level: teamWide ? "team" : "organization",
+        model: selectedModel,
+        status: status,
+        approval_required: approvalRequired,
       }
 
       const response = await fetch(`/api/gpts/${params.id}`, {
@@ -170,20 +185,34 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
       }
 
       const savedGPT = await response.json()
-      toast({
-        title: "GPT Updated Successfully!",
-        description: `${savedGPT.name} has been updated.`,
-      })
+      toast.success(`${savedGPT.name} has been updated successfully!`)
       router.push("/dashboard/admin/gpts")
     } catch (error: any) {
       console.error("Failed to update GPT:", error)
-      toast({
-        title: "Error updating GPT",
-        description: error.message || "Failed to update GPT. Please try again.",
-        variant: "destructive",
-      })
+      toast.error("Failed to update GPT. Please try again.")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleDeleteGPT = async () => {
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/gpts/${params.id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      toast.success(`${gpt?.name || "The GPT"} has been deleted successfully!`)
+      router.push("/dashboard/admin/gpts")
+    } catch (error: any) {
+      console.error("Failed to delete GPT:", error)
+      toast.error("Failed to delete GPT. Please try again.")
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -201,13 +230,35 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
       title="Edit Team GPT"
       description="Modify your team's AI assistant."
     >
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <Link href="/dashboard/admin/gpts">
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to GPTs
           </Button>
         </Link>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" className="mb-4">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete GPT
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the GPT and remove its data from our servers.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteGPT} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
@@ -335,15 +386,24 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
                 <Switch id="web-access" checked={webAccess} onCheckedChange={setWebAccess} />
               </div>
 
-              {/* Admins can only manage team-level GPTs, so this switch is not editable */}
-              <div className="flex items-center justify-between opacity-50 cursor-not-allowed">
+              <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="team-only" className="text-base font-medium">
-                    Team Only
+                  <Label htmlFor="team-wide" className="text-base font-medium">
+                    Team Wide Access
                   </Label>
-                  <p className="text-sm text-gray-500">Restrict access to your team members only</p>
+                  <p className="text-sm text-gray-500">Make this GPT available to all team members</p>
                 </div>
-                <Switch id="team-only" checked={teamOnly} disabled />
+                <Switch id="team-wide" checked={teamWide} onCheckedChange={setTeamWide} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="approval-required" className="text-base font-medium">
+                    Approval Required
+                  </Label>
+                  <p className="text-sm text-gray-500">Require admin approval before this GPT can be used</p>
+                </div>
+                <Switch id="approval-required" checked={approvalRequired} onCheckedChange={setApprovalRequired} />
               </div>
             </div>
           </CardContent>
@@ -352,6 +412,7 @@ export default function EditAdminGPTPage({ params }: EditAdminGPTPageProps) {
               Cancel
             </Button>
             <Button onClick={handleSaveGPT} disabled={isSaving || !gptName || !gptDescription} className="btn-primary">
+              <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving Changes..." : "Save Changes"}
             </Button>
           </div>

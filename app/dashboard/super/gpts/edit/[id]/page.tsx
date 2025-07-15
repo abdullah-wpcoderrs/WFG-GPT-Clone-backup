@@ -1,6 +1,6 @@
 "use client"
 
-import type * as React from "react"
+import type React from "react"
 import { useState, useEffect } from "react"
 import {
   Brain,
@@ -13,9 +13,10 @@ import {
   BookOpen,
   BarChart3,
   Settings,
-  ShieldCheck,
+  Shield,
   Building2,
   Trash2,
+  Save,
 } from "lucide-react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,7 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { ChatInterface } from "@/components/chat/chat-interface"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { GPT } from "@/types"
@@ -44,61 +45,61 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-// Define navigation items for the super admin dashboard
+// Define navigation items for the super admin dashboard - CONSISTENT WITH OTHER PAGES
 const navigationItems = [
   {
-    name: "Organization Dashboard",
+    name: "Overview",
     href: "/dashboard/super",
     icon: BarChart3,
-    description: "Overall platform metrics",
+    description: "System-wide metrics",
   },
   {
-    name: "Organization GPTs",
+    name: "All GPTs",
     href: "/dashboard/super/gpts",
     icon: Brain,
-    description: "Manage all AI assistants",
+    description: "Organization GPT management",
   },
   {
-    name: "Users",
+    name: "User Management",
     href: "/dashboard/super/users",
     icon: Users,
-    description: "Manage all platform users",
+    description: "All users & permissions",
   },
   {
-    name: "Teams",
+    name: "Teams & Units",
     href: "/dashboard/super/teams",
     icon: Building2,
-    description: "Manage organizational teams",
+    description: "Team structure & assignments",
   },
   {
-    name: "Documents",
+    name: "Document Library",
     href: "/dashboard/super/documents",
     icon: FileText,
-    description: "Manage all platform documents",
+    description: "Global document management",
   },
   {
-    name: "Prompt Templates",
+    name: "Prompt Library",
     href: "/dashboard/super/prompts",
     icon: BookOpen,
-    description: "Manage all prompt templates",
+    description: "Organization prompt templates",
   },
   {
-    name: "Chat Logs",
+    name: "Chat History",
     href: "/dashboard/super/chats",
     icon: MessageSquare,
-    description: "View all chat conversations",
+    description: "All chat conversations",
+  },
+  {
+    name: "System Settings",
+    href: "/dashboard/super/settings",
+    icon: Settings,
+    description: "Platform configuration",
   },
   {
     name: "Security",
     href: "/dashboard/super/security",
-    icon: ShieldCheck,
-    description: "Platform security settings",
-  },
-  {
-    name: "Settings",
-    href: "/dashboard/super/settings",
-    icon: Settings,
-    description: "Platform-wide configurations",
+    icon: Shield,
+    description: "Access control & policies",
   },
 ]
 
@@ -123,7 +124,6 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const { toast } = useToast()
   const router = useRouter()
 
   useEffect(() => {
@@ -148,11 +148,7 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
         setRiskLevel(gptData.risk_level || "low")
       } catch (error: any) {
         console.error("Failed to fetch GPT:", error)
-        toast({
-          title: "Error loading GPT",
-          description: error.message || "Failed to load GPT data",
-          variant: "destructive",
-        })
+        toast.error("Failed to load GPT data")
         router.push("/dashboard/super/gpts")
       } finally {
         setIsLoading(false)
@@ -160,7 +156,7 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
     }
 
     fetchGPT()
-  }, [params.id, toast, router])
+  }, [params.id, router])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -200,18 +196,11 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
       }
 
       const savedGPT = await response.json()
-      toast({
-        title: "GPT Updated Successfully!",
-        description: `${savedGPT.name} has been updated.`,
-      })
+      toast.success(`${savedGPT.name} has been updated successfully!`)
       router.push("/dashboard/super/gpts")
     } catch (error: any) {
       console.error("Failed to update GPT:", error)
-      toast({
-        title: "Error updating GPT",
-        description: error.message || "Failed to update GPT. Please try again.",
-        variant: "destructive",
-      })
+      toast.error("Failed to update GPT. Please try again.")
     } finally {
       setIsSaving(false)
     }
@@ -228,18 +217,11 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      toast({
-        title: "GPT Deleted Successfully!",
-        description: `${gpt?.name || "The GPT"} has been removed.`,
-      })
+      toast.success(`${gpt?.name || "The GPT"} has been deleted successfully!`)
       router.push("/dashboard/super/gpts")
     } catch (error: any) {
       console.error("Failed to delete GPT:", error)
-      toast({
-        title: "Error deleting GPT",
-        description: error.message || "Failed to delete GPT. Please try again.",
-        variant: "destructive",
-      })
+      toast.error("Failed to delete GPT. Please try again.")
     } finally {
       setIsDeleting(false)
     }
@@ -487,6 +469,7 @@ export default function EditSuperAdminGPTPage({ params }: EditSuperAdminGPTPageP
               Cancel
             </Button>
             <Button onClick={handleSaveGPT} disabled={isSaving || !gptName || !gptDescription} className="btn-primary">
+              <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving Changes..." : "Save Changes"}
             </Button>
           </div>

@@ -1,5 +1,7 @@
-import { Skeleton } from "@/components/ui/skeleton"
+"use client"
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Brain, Users, FileText, BookOpen, BarChart3, Settings, MessageSquare } from "lucide-react"
 
@@ -43,7 +45,7 @@ const navigationItems = [
   {
     name: "Activity Logs",
     href: "/dashboard/admin/logs",
-    icon: BarChart3,
+    icon: FileText,
     description: "Team activity monitoring",
   },
   {
@@ -58,8 +60,8 @@ export default function AdminEditGPTLoading() {
   return (
     <DashboardLayout
       navigationItems={navigationItems}
-      title="Edit GPT"
-      description="Modify your team's AI assistant configuration."
+      title="Edit Team GPT"
+      description="Modify team AI assistant configuration."
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
         {/* Chat Interface Skeleton */}
@@ -114,8 +116,17 @@ export default function AdminEditGPTLoading() {
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-32 w-full" />
             </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-10 w-full" />
+            </div>
             <div className="flex gap-3">
               <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-20" />
               <Skeleton className="h-10 w-20" />
             </div>
           </CardContent>
