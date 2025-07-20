@@ -1,89 +1,67 @@
-"use client"
+import type { User, Project, Document, Template, ChatSession, ChatMessage, GPT } from "@/types"
 
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: "user" | "admin" | "superadmin"
-  avatar?: string
-  team?: string
-  status: "active" | "inactive"
-  lastLogin: string
-  createdAt: string
-}
-
-export interface GPT {
-  id: string
-  name: string
-  description: string
-  category: string
-  status: "active" | "inactive" | "draft"
-  creator: string
-  createdAt: string
-  updatedAt: string
-  usageCount: number
-  rating: number
-  tags: string[]
-  isPublic: boolean
-  teamId?: string
-  prompt?: string
-  model?: string
-  temperature?: number
-  maxTokens?: number
-}
-
-export interface ChatSession {
-  id: string
-  title: string
-  user_id: string
-  gpt_id: string
-  gpt_name: string
-  status: "active" | "completed" | "archived"
-  message_count: number
-  created_at: string
-  updated_at: string
-}
-
-export interface ChatMessage {
-  id: string
-  session_id: string
-  sender: "user" | "assistant"
-  content: string
-  created_at: string
-}
-
+// Mock Users with correct login credentials
 export const mockUsers: User[] = [
   {
-    id: "user-1",
+    id: "1",
     name: "John Doe",
-    email: "john.doe@company.com",
+    email: "user@test.com",
     role: "user",
-    team: "Engineering",
+    avatar: "/placeholder-user.jpg",
+    createdAt: new Date("2024-01-15"),
+    lastActive: new Date("2024-01-20"),
     status: "active",
-    lastLogin: "2024-01-15T10:30:00Z",
-    createdAt: "2024-01-01T00:00:00Z",
+    teamId: "team-1",
   },
   {
-    id: "admin-1",
+    id: "2",
     name: "Jane Smith",
-    email: "jane.smith@company.com",
+    email: "admin@test.com",
     role: "admin",
-    team: "Engineering",
+    avatar: "/placeholder-user.jpg",
+    createdAt: new Date("2024-01-10"),
+    lastActive: new Date("2024-01-20"),
     status: "active",
-    lastLogin: "2024-01-15T09:15:00Z",
-    createdAt: "2024-01-01T00:00:00Z",
+    teamId: "team-1",
   },
   {
-    id: "superadmin-1",
+    id: "3",
     name: "Mike Johnson",
-    email: "mike.johnson@company.com",
-    role: "superadmin",
+    email: "superadmin@test.com",
+    role: "super_admin",
+    avatar: "/placeholder-user.jpg",
+    createdAt: new Date("2024-01-05"),
+    lastActive: new Date("2024-01-20"),
     status: "active",
-    lastLogin: "2024-01-15T08:45:00Z",
-    createdAt: "2024-01-01T00:00:00Z",
+    teamId: "team-1",
+  },
+  {
+    id: "4",
+    name: "Sarah Wilson",
+    email: "sarah@company.com",
+    role: "user",
+    avatar: "/placeholder-user.jpg",
+    createdAt: new Date("2024-01-12"),
+    lastActive: new Date("2024-01-19"),
+    status: "active",
+    teamId: "team-2",
+  },
+  {
+    id: "5",
+    name: "David Brown",
+    email: "david@company.com",
+    role: "admin",
+    avatar: "/placeholder-user.jpg",
+    createdAt: new Date("2024-01-08"),
+    lastActive: new Date("2024-01-18"),
+    status: "active",
+    teamId: "team-2",
   },
 ]
 
+// ─────────────────────────────────────────────────────────────────────────
+// GPTs
+// ─────────────────────────────────────────────────────────────────────────
 export const mockGPTs: GPT[] = [
   {
     id: "gpt-1",
@@ -92,8 +70,8 @@ export const mockGPTs: GPT[] = [
     category: "Development",
     status: "active",
     creator: "admin-1",
-    createdAt: "2024-01-10T00:00:00Z",
-    updatedAt: "2024-01-14T00:00:00Z",
+    createdAt: new Date("2024-01-10"),
+    updatedAt: new Date("2024-01-14"),
     usageCount: 245,
     rating: 4.8,
     tags: ["coding", "debugging", "review"],
@@ -111,8 +89,8 @@ export const mockGPTs: GPT[] = [
     category: "Content",
     status: "active",
     creator: "admin-1",
-    createdAt: "2024-01-12T00:00:00Z",
-    updatedAt: "2024-01-15T00:00:00Z",
+    createdAt: new Date("2024-01-12"),
+    updatedAt: new Date("2024-01-15"),
     usageCount: 189,
     rating: 4.6,
     tags: ["writing", "marketing", "documentation"],
@@ -130,8 +108,8 @@ export const mockGPTs: GPT[] = [
     category: "Analytics",
     status: "active",
     creator: "superadmin-1",
-    createdAt: "2024-01-08T00:00:00Z",
-    updatedAt: "2024-01-13T00:00:00Z",
+    createdAt: new Date("2024-01-08"),
+    updatedAt: new Date("2024-01-13"),
     usageCount: 156,
     rating: 4.7,
     tags: ["data", "analytics", "insights"],
@@ -141,201 +119,240 @@ export const mockGPTs: GPT[] = [
     temperature: 0.2,
     maxTokens: 2500,
   },
+  {
+    id: "gpt-4",
+    name: "Marketing Strategist",
+    description: "Generates marketing strategies and campaign ideas",
+    category: "Marketing",
+    status: "active",
+    creator: "superadmin-1",
+    createdAt: new Date("2024-01-09"),
+    updatedAt: new Date("2024-01-16"),
+    usageCount: 132,
+    rating: 4.5,
+    tags: ["marketing", "strategy", "campaign"],
+    isPublic: true,
+    prompt: "You are a seasoned marketing strategist...",
+    model: "gpt-4",
+    temperature: 0.6,
+    maxTokens: 2200,
+  },
 ]
 
+// Mock Projects
+export const mockProjects: Project[] = [
+  {
+    id: "1",
+    name: "Website Redesign",
+    description: "Complete overhaul of company website",
+    status: "active",
+    createdAt: new Date("2024-01-15"),
+    updatedAt: new Date("2024-01-20"),
+    userId: "1",
+    teamId: "team-1",
+  },
+  {
+    id: "2",
+    name: "Mobile App Development",
+    description: "New mobile application for customer engagement",
+    status: "active",
+    createdAt: new Date("2024-01-10"),
+    updatedAt: new Date("2024-01-18"),
+    userId: "1",
+    teamId: "team-1",
+  },
+  {
+    id: "3",
+    name: "Marketing Campaign",
+    description: "Q1 marketing campaign planning and execution",
+    status: "completed",
+    createdAt: new Date("2024-01-05"),
+    updatedAt: new Date("2024-01-15"),
+    userId: "4",
+    teamId: "team-2",
+  },
+]
+
+// Mock Documents
+export const mockDocuments: Document[] = [
+  {
+    id: "1",
+    name: "Project Requirements.pdf",
+    type: "pdf",
+    size: 2048000,
+    createdAt: new Date("2024-01-15"),
+    updatedAt: new Date("2024-01-15"),
+    userId: "1",
+    projectId: "1",
+  },
+  {
+    id: "2",
+    name: "Design Mockups.figma",
+    type: "figma",
+    size: 5120000,
+    createdAt: new Date("2024-01-16"),
+    updatedAt: new Date("2024-01-18"),
+    userId: "1",
+    projectId: "1",
+  },
+  {
+    id: "3",
+    name: "Meeting Notes.docx",
+    type: "docx",
+    size: 512000,
+    createdAt: new Date("2024-01-12"),
+    updatedAt: new Date("2024-01-12"),
+    userId: "4",
+    projectId: "3",
+  },
+]
+
+// Mock Templates
+export const mockTemplates: Template[] = [
+  {
+    id: "1",
+    name: "Project Brief Template",
+    description: "Standard template for project briefs",
+    content: "# Project Brief\n\n## Objective\n\n## Scope\n\n## Timeline\n\n## Resources",
+    category: "project",
+    createdAt: new Date("2024-01-10"),
+    updatedAt: new Date("2024-01-10"),
+    userId: "2",
+  },
+  {
+    id: "2",
+    name: "Meeting Agenda Template",
+    description: "Template for team meeting agendas",
+    content: "# Meeting Agenda\n\n## Date & Time\n\n## Attendees\n\n## Agenda Items\n\n## Action Items",
+    category: "meeting",
+    createdAt: new Date("2024-01-08"),
+    updatedAt: new Date("2024-01-08"),
+    userId: "2",
+  },
+]
+
+// Mock Chat Sessions
 export const mockChatSessions: ChatSession[] = [
   {
     id: "session-1",
-    title: "Debug React Component",
-    user_id: "user-1",
-    gpt_id: "gpt-1",
-    gpt_name: "Code Assistant",
-    status: "active",
-    message_count: 8,
-    created_at: "2024-01-15T09:00:00Z",
-    updated_at: "2024-01-15T10:30:00Z",
+    title: "Website Design Discussion",
+    gptId: "gpt-1",
+    userId: "1",
+    createdAt: new Date("2024-01-20T10:00:00"),
+    updatedAt: new Date("2024-01-20T14:30:00"),
+    messageCount: 8,
   },
   {
     id: "session-2",
-    title: "Write Product Description",
-    user_id: "user-1",
-    gpt_id: "gpt-2",
-    gpt_name: "Content Writer",
-    status: "completed",
-    message_count: 5,
-    created_at: "2024-01-14T14:00:00Z",
-    updated_at: "2024-01-14T15:30:00Z",
+    title: "Marketing Strategy Planning",
+    gptId: "gpt-2",
+    userId: "1",
+    createdAt: new Date("2024-01-19T09:15:00"),
+    updatedAt: new Date("2024-01-19T16:45:00"),
+    messageCount: 12,
   },
   {
     id: "session-3",
-    title: "API Integration Help",
-    user_id: "admin-1",
-    gpt_id: "gpt-1",
-    gpt_name: "Code Assistant",
-    status: "active",
-    message_count: 12,
-    created_at: "2024-01-15T08:00:00Z",
-    updated_at: "2024-01-15T11:45:00Z",
+    title: "Code Review Assistant",
+    gptId: "gpt-3",
+    userId: "1",
+    createdAt: new Date("2024-01-18T11:30:00"),
+    updatedAt: new Date("2024-01-18T15:20:00"),
+    messageCount: 6,
   },
   {
     id: "session-4",
-    title: "Sales Report Analysis",
-    user_id: "admin-1",
-    gpt_id: "gpt-3",
-    gpt_name: "Data Analyst",
-    status: "completed",
-    message_count: 6,
-    created_at: "2024-01-13T10:00:00Z",
-    updated_at: "2024-01-13T12:00:00Z",
+    title: "Content Creation Help",
+    gptId: "gpt-1",
+    userId: "2",
+    createdAt: new Date("2024-01-17T13:00:00"),
+    updatedAt: new Date("2024-01-17T17:30:00"),
+    messageCount: 15,
   },
   {
     id: "session-5",
-    title: "System Architecture Review",
-    user_id: "superadmin-1",
-    gpt_id: "gpt-1",
-    gpt_name: "Code Assistant",
-    status: "active",
-    message_count: 15,
-    created_at: "2024-01-14T16:00:00Z",
-    updated_at: "2024-01-15T09:30:00Z",
-  },
-  {
-    id: "session-6",
-    title: "Marketing Campaign Ideas",
-    user_id: "superadmin-1",
-    gpt_id: "gpt-2",
-    gpt_name: "Content Writer",
-    status: "completed",
-    message_count: 9,
-    created_at: "2024-01-12T11:00:00Z",
-    updated_at: "2024-01-12T13:30:00Z",
+    title: "Data Analysis Discussion",
+    gptId: "gpt-4",
+    userId: "3",
+    createdAt: new Date("2024-01-16T08:45:00"),
+    updatedAt: new Date("2024-01-16T12:15:00"),
+    messageCount: 9,
   },
 ]
 
+// Mock Chat Messages
 export const mockChatMessages: ChatMessage[] = [
-  // Session 1 messages (Debug React Component)
+  // Session 1 messages
   {
     id: "msg-1",
-    session_id: "session-1",
-    sender: "user",
-    content: "I'm having trouble with my React component. It's not rendering properly.",
-    created_at: "2024-01-15T09:00:00Z",
+    sessionId: "session-1",
+    content: "I need help designing a modern website layout for our company. What are the current design trends?",
+    role: "user",
+    timestamp: new Date("2024-01-20T10:00:00"),
   },
   {
     id: "msg-2",
-    session_id: "session-1",
-    sender: "assistant",
+    sessionId: "session-1",
     content:
-      "I'd be happy to help you debug your React component! Can you share the code that's not rendering properly?",
-    created_at: "2024-01-15T09:01:00Z",
+      "I'd be happy to help you with modern website design trends! Here are some key trends for 2024:\n\n1. **Minimalist Design**: Clean, uncluttered layouts with plenty of white space\n2. **Bold Typography**: Large, eye-catching fonts as design elements\n3. **Dark Mode**: Offering both light and dark theme options\n4. **Micro-interactions**: Subtle animations that enhance user experience\n5. **Mobile-first Design**: Responsive layouts optimized for mobile devices\n\nWhat type of company website are you designing? This will help me provide more specific recommendations.",
+    role: "assistant",
+    timestamp: new Date("2024-01-20T10:02:00"),
   },
   {
     id: "msg-3",
-    session_id: "session-1",
-    sender: "user",
+    sessionId: "session-1",
     content:
-      "Here's the component:\n\n```jsx\nfunction MyComponent() {\n  const [data, setData] = useState();\n  return <div>{data.name}</div>;\n}\n```",
-    created_at: "2024-01-15T09:02:00Z",
+      "It's for a tech startup focused on AI solutions. We want something that looks innovative and trustworthy.",
+    role: "user",
+    timestamp: new Date("2024-01-20T10:05:00"),
   },
   {
     id: "msg-4",
-    session_id: "session-1",
-    sender: "assistant",
+    sessionId: "session-1",
     content:
-      "I see the issue! The problem is that `data` is initially `undefined`, so accessing `data.name` will cause an error. You should add a conditional check or provide a default value.",
-    created_at: "2024-01-15T09:03:00Z",
+      "Perfect! For an AI tech startup, here are some specific design recommendations:\n\n**Color Palette:**\n- Primary: Deep blues or teals (convey trust and technology)\n- Accent: Bright cyan or electric blue (innovation)\n- Neutral: Clean grays and whites\n\n**Visual Elements:**\n- Geometric patterns or subtle grid overlays\n- Abstract tech illustrations\n- Data visualization elements\n- Gradient overlays on hero sections\n\n**Layout Structure:**\n- Hero section with clear value proposition\n- Product/service showcase with interactive demos\n- Trust indicators (testimonials, logos, certifications)\n- Clear call-to-action buttons\n\nWould you like me to elaborate on any of these elements?",
+    role: "assistant",
+    timestamp: new Date("2024-01-20T10:08:00"),
   },
-
-  // Session 2 messages (Write Product Description)
+  // Session 2 messages
   {
     id: "msg-5",
-    session_id: "session-2",
-    sender: "user",
-    content: "I need help writing a product description for our new wireless headphones.",
-    created_at: "2024-01-14T14:00:00Z",
+    sessionId: "session-2",
+    content: "Help me create a comprehensive marketing strategy for our new product launch.",
+    role: "user",
+    timestamp: new Date("2024-01-19T09:15:00"),
   },
   {
     id: "msg-6",
-    session_id: "session-2",
-    sender: "assistant",
+    sessionId: "session-2",
     content:
-      "I'd be happy to help you create a compelling product description! Can you tell me about the key features and target audience for these wireless headphones?",
-    created_at: "2024-01-14T14:01:00Z",
+      "I'll help you create a comprehensive marketing strategy! Let's start with the foundation:\n\n**1. Product & Market Analysis**\n- What's your product and its unique value proposition?\n- Who is your target audience?\n- What's your competitive landscape?\n\n**2. Marketing Objectives**\n- Launch awareness goals\n- Lead generation targets\n- Revenue objectives\n- Timeline for launch\n\n**3. Channel Strategy**\n- Digital marketing (social media, content, email)\n- Traditional marketing (if applicable)\n- Partnership and influencer marketing\n- PR and media outreach\n\nCan you tell me more about your product and target audience so I can provide more specific recommendations?",
+    role: "assistant",
+    timestamp: new Date("2024-01-19T09:18:00"),
   },
-  {
-    id: "msg-7",
-    session_id: "session-2",
-    sender: "user",
-    content:
-      "They have noise cancellation, 30-hour battery life, and are targeted at professionals who work from home.",
-    created_at: "2024-01-14T14:05:00Z",
-  },
+]
 
-  // Session 3 messages (API Integration Help)
+// Mock Teams
+export const mockTeams = [
   {
-    id: "msg-8",
-    session_id: "session-3",
-    sender: "user",
-    content: "I'm trying to integrate a REST API into our application but getting CORS errors.",
-    created_at: "2024-01-15T08:00:00Z",
+    id: "team-1",
+    name: "Development Team",
+    description: "Frontend and backend developers",
+    memberCount: 8,
+    createdAt: new Date("2024-01-01"),
   },
   {
-    id: "msg-9",
-    session_id: "session-3",
-    sender: "assistant",
-    content:
-      "CORS errors are common when working with APIs. Can you tell me more about your setup? Are you making requests from a browser to a different domain?",
-    created_at: "2024-01-15T08:01:00Z",
-  },
-
-  // Session 4 messages (Sales Report Analysis)
-  {
-    id: "msg-10",
-    session_id: "session-4",
-    sender: "user",
-    content: "Can you help me analyze our Q4 sales data? I have the numbers but need insights.",
-    created_at: "2024-01-13T10:00:00Z",
+    id: "team-2",
+    name: "Marketing Team",
+    description: "Marketing and content creation",
+    memberCount: 5,
+    createdAt: new Date("2024-01-01"),
   },
   {
-    id: "msg-11",
-    session_id: "session-4",
-    sender: "assistant",
-    content:
-      "I'd be happy to help analyze your Q4 sales data. Please share the data you have, and I'll provide insights on trends, performance, and recommendations.",
-    created_at: "2024-01-13T10:01:00Z",
-  },
-
-  // Session 5 messages (System Architecture Review)
-  {
-    id: "msg-12",
-    session_id: "session-5",
-    sender: "user",
-    content: "I need a review of our current system architecture. We're experiencing scalability issues.",
-    created_at: "2024-01-14T16:00:00Z",
-  },
-  {
-    id: "msg-13",
-    session_id: "session-5",
-    sender: "assistant",
-    content:
-      "I'd be glad to help review your system architecture for scalability improvements. Can you describe your current setup, including the tech stack, database, and where you're seeing bottlenecks?",
-    created_at: "2024-01-14T16:01:00Z",
-  },
-
-  // Session 6 messages (Marketing Campaign Ideas)
-  {
-    id: "msg-14",
-    session_id: "session-6",
-    sender: "user",
-    content: "We're launching a new product next month and need creative marketing campaign ideas.",
-    created_at: "2024-01-12T11:00:00Z",
-  },
-  {
-    id: "msg-15",
-    session_id: "session-6",
-    sender: "assistant",
-    content:
-      "Exciting! I'd love to help brainstorm marketing campaign ideas for your product launch. Can you tell me more about the product, target audience, and budget range?",
-    created_at: "2024-01-12T11:01:00Z",
+    id: "team-3",
+    name: "Design Team",
+    description: "UI/UX designers and graphic artists",
+    memberCount: 4,
+    createdAt: new Date("2024-01-01"),
   },
 ]

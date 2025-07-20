@@ -21,7 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check for stored user session
     const storedUser = localStorage.getItem("gptworkdesk_user")
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      try {
+        setUser(JSON.parse(storedUser))
+      } catch (error) {
+        console.error("Error parsing stored user:", error)
+        localStorage.removeItem("gptworkdesk_user")
+      }
     }
     setIsLoading(false)
   }, [])
@@ -32,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simulate API call delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // Mock authentication - in real app, this would be an API call
+    // Mock authentication - check against our mock users
     const foundUser = mockUsers.find((u) => u.email === email)
 
     if (foundUser && password === "password123") {

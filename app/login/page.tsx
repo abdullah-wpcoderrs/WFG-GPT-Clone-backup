@@ -101,13 +101,13 @@ export default function LoginPage() {
             <p className="text-sm font-medium text-[#2C2C2C] mb-2">Demo Accounts:</p>
             <div className="space-y-1 text-xs text-gray-600">
               <p>
-                <strong>User:</strong> john.doe@example.com
+                <strong>User:</strong> user@test.com
               </p>
               <p>
-                <strong>Admin:</strong> sarah.johnson@example.com
+                <strong>Admin:</strong> admin@test.com
               </p>
               <p>
-                <strong>Super Admin:</strong> jane.smith@example.com
+                <strong>Super Admin:</strong> superadmin@test.com
               </p>
               <p>
                 <strong>Password:</strong> password123

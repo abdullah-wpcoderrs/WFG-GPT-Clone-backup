@@ -103,3 +103,6 @@ export const mockGptsData: GPT[] = [
     access_level: "team",
   },
 ]
+
+// Alias so other modules can import { mockGPTs }
+export { mockGptsData as mockGPTs }

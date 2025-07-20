@@ -1,225 +1,298 @@
 "use client"
 
-import { useAuth } from "@/hooks/use-auth"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { mockGPTs, mockChatSessions } from "@/lib/mock-data" // Import mockChatSessions
-import { Brain, MessageSquare, FolderOpen, FileText, Settings, TrendingUp, Users, Clock, User } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import {
+  MessageSquare,
+  FileText,
+  FolderOpen,
+  Clock,
+  Users,
+  ArrowRight,
+  Bot,
+  Brain,
+  BookOpen,
+  Settings,
+} from "lucide-react"
 import Link from "next/link"
+import { mockProjects, mockDocuments, mockChatSessions } from "@/lib/mock-data"
+import { mockGPTs } from "@/lib/mock-gpts"
+import { useAuth } from "@/hooks/use-auth"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
 
 const navigationItems = [
   {
-    name: "My Dashboard",
+    name: "My GPT Tools",
     href: "/dashboard/user",
-    icon: User,
-    description: "Personal overview",
+    icon: Brain,
+    description: "Access your assigned GPTs",
   },
   {
-    name: "Chat with GPTs",
+    name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "AI conversations",
+    description: "Chat history & sessions",
   },
   {
     name: "My Projects",
     href: "/dashboard/user/projects",
     icon: FolderOpen,
-    description: "Project workspace",
+    description: "Organized chat folders",
   },
   {
-    name: "My Docs",
+    name: "Prompt Library",
+    href: "/dashboard/user/prompts",
+    icon: BookOpen,
+    description: "Saved prompt templates",
+  },
+  {
+    name: "Team Documents",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Document library",
-  },
-  {
-    name: "My Prompts",
-    href: "/dashboard/user/prompts",
-    icon: Brain,
-    description: "Saved prompts",
+    description: "Shared team resources",
   },
   {
     name: "Settings",
     href: "/dashboard/user/settings",
     icon: Settings,
-    description: "Account settings",
+    description: "Profile & preferences",
   },
 ]
 
 export default function UserDashboard() {
   const { user } = useAuth()
 
-  // Filter GPTs for user's team or organization-wide
-  const userGPTs = mockGPTs.filter((gpt) => gpt.team_name === user?.team_name || gpt.team_name === "Organization-wide")
-
-  // Get recent chats for the current user (assuming user-1 for mock data)
+  // Get recent items (last 3)
+  const recentProjects = mockProjects.slice(0, 3)
+  const recentDocuments = mockDocuments.slice(0, 3)
   const recentChats = mockChatSessions
-    .filter((session) => session.user_id === "user-1")
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 3) // Get the 3 most recent chats
+    .filter((chat) => chat.userId === "1") // Current user's chats
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 3)
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    })
-  }
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  const stats = [
+    {
+      title: "Active Projects",
+      value: "3",
+      change: "+2 this week",
+      icon: FolderOpen,
+      color: "text-blue-600",
+    },
+    {
+      title: "Documents",
+      value: "24",
+      change: "+5 this week",
+      icon: FileText,
+      color: "text-green-600",
+    },
+    {
+      title: "Chat Sessions",
+      value: "12",
+      change: "+3 this week",
+      icon: MessageSquare,
+      color: "text-purple-600",
+    },
+    {
+      title: "Team Members",
+      value: "8",
+      change: "No change",
+      icon: Users,
+      color: "text-orange-600",
+    },
+  ]
 
   return (
     <DashboardLayout
       navigationItems={navigationItems}
-      title={`Welcome back, ${user?.full_name?.split(" ")[0]}!`}
-      description="Here are your available AI tools and recent activity."
+      title={`Welcome back, ${user?.full_name?.split(" ")[0] || "John"}!`}
+      description="Here's what's happening with your projects today."
     >
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <MessageSquare className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">12</p>
-                <p className="text-sm text-gray-600">Chats This Week</p>
+      <div className="space-y-8">
+        {/* Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <Card key={stat.title}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.change}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Recent Projects */}
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Projects</CardTitle>
+                <CardDescription>Your latest project activity</CardDescription>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <Brain className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">{userGPTs.length}</p>
-                <p className="text-sm text-gray-600">GPTs Assigned</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <FileText className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">4</p>
-                <p className="text-sm text-gray-600">New Docs Shared</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-[#E0E0E0] shadow-none">
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-[#66BB6A]" />
-              <div className="ml-4">
-                <p className="text-2xl font-semibold text-[#2C2C2C]">85%</p>
-                <p className="text-sm text-gray-600">Productivity Score</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Available GPT Tools */}
-      <Card className="border-[#E0E0E0] shadow-none">
-        <CardHeader>
-          <CardTitle className="text-xl text-[#2C2C2C]">Available GPT Tools</CardTitle>
-          <CardDescription>AI assistants assigned to your team and organization-wide tools</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {userGPTs.map((gpt) => (
-              <Card key={gpt.id} className="border-[#E0E0E0] shadow-none card-hover cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-[#B9E769] rounded-lg flex items-center justify-center">
-                        <Brain className="w-5 h-5 text-[#2C2C2C]" />
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="font-semibold text-[#2C2C2C]">{gpt.name}</h3>
-                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
-                          {gpt.team_name}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Badge
-                      className={`text-xs ${gpt.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
-                    >
-                      {gpt.status}
-                    </Badge>
+              <FolderOpen className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentProjects.map((project) => (
+                <div key={project.id} className="flex items-center space-x-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{project.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{project.description}</p>
                   </div>
-
-                  <p className="text-sm text-gray-600 mb-4">{gpt.description}</p>
-
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                    <div className="flex items-center">
-                      <Clock className="w-3 h-3 mr-1" />
-                      Last used: {gpt.last_used}
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="w-3 h-3 mr-1" />
-                      {gpt.usage_count} uses
-                    </div>
-                  </div>
-
-                  <Button asChild className="w-full btn-primary">
-                    <Link href={`/dashboard/user/chats/${gpt.id}`}>Open Chat</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Chats */}
-      <Card className="border-[#E0E0E0] shadow-none">
-        <CardHeader>
-          <CardTitle className="text-xl text-[#2C2C2C]">Recent Chats</CardTitle>
-          <CardDescription>Your latest conversations with AI assistants</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentChats.map((chat) => (
-              <Link key={chat.id} href={`/dashboard/user/chats/session/${chat.id}`}>
-                <div className="flex items-center justify-between p-4 border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-[#B9E769] rounded-lg flex items-center justify-center">
-                      <Brain className="w-4 h-4 text-[#2C2C2C]" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-[#2C2C2C]">{chat.title}</p>
-                      <p className="text-sm text-gray-600">{chat.gpt_name}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">{formatDate(chat.updated_at)}</p>
-                    <p className="text-xs text-gray-500">{formatTime(chat.updated_at)}</p>
-                  </div>
+                  <Badge variant={project.status === "active" ? "default" : "secondary"} className="text-xs">
+                    {project.status}
+                  </Badge>
                 </div>
+              ))}
+              <Link href="/dashboard/user/projects">
+                <Button variant="ghost" className="w-full justify-between text-sm">
+                  View all projects
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </Link>
-            ))}
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="mt-6 text-center">
-            <Button asChild variant="outline" className="border-[#E0E0E0] bg-transparent">
-              <Link href="/dashboard/user/chats">View All Chats</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Recent Documents */}
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Documents</CardTitle>
+                <CardDescription>Recently accessed files</CardDescription>
+              </div>
+              <FileText className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentDocuments.map((doc) => (
+                <div key={doc.id} className="flex items-center space-x-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(doc.size / 1024 / 1024).toFixed(1)} MB • {doc.type.toUpperCase()}
+                    </p>
+                  </div>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ))}
+              <Link href="/dashboard/user/documents">
+                <Button variant="ghost" className="w-full justify-between text-sm">
+                  View all documents
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Recent Chats */}
+          <Card className="col-span-1">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Chats</CardTitle>
+                <CardDescription>Your latest AI conversations</CardDescription>
+              </div>
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentChats.map((chat) => {
+                const gpt = mockGPTs.find((g) => g.id === chat.gptId)
+                return (
+                  <Link
+                    key={chat.id}
+                    href={`/dashboard/user/chats/session/${chat.id}`}
+                    className="block hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <Bot className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{chat.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {gpt?.name} • {chat.messageCount} messages
+                        </p>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(chat.updatedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+              <Link href="/dashboard/user/chats">
+                <Button variant="ghost" className="w-full justify-between text-sm">
+                  View all chats
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Activity Overview */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Weekly Activity</CardTitle>
+              <CardDescription>Your productivity this week</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Projects worked on</span>
+                  <span>3/5</span>
+                </div>
+                <Progress value={60} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Documents created</span>
+                  <span>8/10</span>
+                </div>
+                <Progress value={80} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Chat sessions</span>
+                  <span>12/15</span>
+                </div>
+                <Progress value={80} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
+              <CardDescription>Common tasks and shortcuts</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/dashboard/user/projects">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Create New Project
+                </Button>
+              </Link>
+              <Link href="/dashboard/user/chats">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Start New Chat
+                </Button>
+              </Link>
+              <Link href="/dashboard/user/documents">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Upload Document
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </DashboardLayout>
   )
 }
