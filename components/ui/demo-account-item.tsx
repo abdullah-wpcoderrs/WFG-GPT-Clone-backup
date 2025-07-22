@@ -31,16 +31,25 @@ export function DemoAccountItem({ account, onClick }: DemoAccountItemProps) {
   return (
     <div
       onClick={() => onClick(account.email)}
-      className="flex cursor-pointer items-center rounded-lg border p-3 transition-colors hover:bg-gray-50"
+      className="flex cursor-pointer items-center rounded-lg border p-4 transition-colors hover:bg-gray-50 bg-white"
     >
-      <div className="mr-4">{iconMap[account.role]}</div>
-      <div className="flex-grow">
-        <p className="font-semibold">{account.name}</p>
-        <p className="text-sm text-gray-500">{account.email}</p>
-      </div>
-      <div className="flex items-center space-x-4">
-        <Badge variant={badgeVariantMap[account.role]}>{account.role.replace("_", " ")}</Badge>
-        <p className="hidden text-sm text-gray-500 sm:block">{account.team}</p>
+      <div className="mr-3 flex-shrink-0">{iconMap[account.role]}</div>
+      <div className="flex-grow min-w-0">
+        <div className="flex items-center justify-between">
+          <div className="flex-grow min-w-0">
+            <p className="font-medium text-gray-900 truncate">{account.name}</p>
+            <p className="text-sm text-blue-600 truncate">{account.email}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{account.team}</p>
+          </div>
+          <div className="ml-4 flex-shrink-0">
+            <Badge 
+              variant={badgeVariantMap[account.role]}
+              className="text-xs font-medium px-2 py-1"
+            >
+              {account.role.replace("_", " ")}
+            </Badge>
+          </div>
+        </div>
       </div>
     </div>
   )
