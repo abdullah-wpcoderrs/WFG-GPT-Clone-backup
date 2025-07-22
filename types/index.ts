@@ -19,6 +19,7 @@ export interface GPT {
   name: string
   description: string
   team_name: string
+  team_id: string
   last_used: string
   usage_count: number
   status: "active" | "inactive" | "pending" | "suspended"

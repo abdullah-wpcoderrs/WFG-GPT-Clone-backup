@@ -59,8 +59,8 @@ export function ChatInterface({
   }
 
   return (
-    <Card className="flex flex-col h-full border-[#E0E0E0] shadow-none">
-      <CardHeader className="border-b border-[#E0E0E0] p-4">
+    <Card className="flex flex-col h-full min-h-0 border-[#E0E0E0] shadow-none">
+      <CardHeader className="border-b border-[#E0E0E0] p-4 flex-shrink-0">
         <CardTitle className="text-xl text-[#2C2C2C] flex items-center">
           <Brain className="h-5 w-5 mr-2 text-[#66BB6A]" />
           {gptName}
@@ -68,7 +68,7 @@ export function ChatInterface({
         </CardTitle>
         <p className="text-sm text-gray-600">{gptDescription}</p>
       </CardHeader>
-      <CardContent className="flex-1 p-4 overflow-hidden">
+      <CardContent className="flex-1 p-4 min-h-0">
         <ScrollArea className="h-full pr-4">
           <div className="space-y-4">
             {messages.length === 0 && (
@@ -143,7 +143,7 @@ export function ChatInterface({
           </div>
         </ScrollArea>
       </CardContent>
-      <CardFooter className="border-t border-[#E0E0E0] p-4">
+      <CardFooter className="border-t border-[#E0E0E0] p-4 flex-shrink-0">
         <form onSubmit={handleFormSubmit} className="flex w-full gap-2">
           <Input
             placeholder={`Continue your conversation with ${gptName}...`}

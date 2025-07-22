@@ -82,7 +82,7 @@ export default function CreateAdminGPTPage() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setKnowledgeFiles((prev) => [...prev, ...Array.from(event.target.files)])
+      setKnowledgeFiles((prev) => [...prev, ...Array.from(event.target.files || [])])
     }
   }
 
@@ -100,7 +100,7 @@ export default function CreateAdminGPTPage() {
         // instructions: gptInstructions,
         web_access: webAccess,
         team_name: "Your Team", // Placeholder, would be dynamic in a real app
-        team_id: "team-admin", // Placeholder
+        team_id: "team-admin", // Placeholder - will be replaced with actual team ID from database
         created_by: "admin-user", // Placeholder
         model: selectedModel,
         access_level: teamOnly ? "team" : "organization",
@@ -143,9 +143,9 @@ export default function CreateAdminGPTPage() {
       title="Create New Team GPT"
       description="Design and test a new AI assistant for your team."
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full min-h-0">
         {/* Left Panel: Chat Interface for Testing */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col min-h-0">
           <ChatInterface
             gptName={gptName || "New GPT (Testing)"}
             gptDescription={gptDescription || "Test your GPT's behavior here."}
@@ -154,11 +154,11 @@ export default function CreateAdminGPTPage() {
         </div>
 
         {/* Right Panel: Configuration */}
-        <Card className="flex flex-col h-full border-[#E0E0E0] shadow-none">
-          <CardHeader className="border-b border-[#E0E0E0] p-4">
+        <Card className="flex flex-col min-h-0 border-[#E0E0E0] shadow-none">
+          <CardHeader className="border-b border-[#E0E0E0] p-4 flex-shrink-0">
             <CardTitle className="text-xl text-[#2C2C2C]">GPT Configuration</CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 p-6 overflow-y-auto space-y-6">
+          <CardContent className="flex-1 p-6 overflow-y-auto space-y-6 min-h-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="gpt-name">GPT Name</Label>
@@ -270,7 +270,7 @@ export default function CreateAdminGPTPage() {
               </div>
             </div>
           </CardContent>
-          <div className="border-t border-[#E0E0E0] p-4 flex justify-end">
+          <div className="border-t border-[#E0E0E0] p-4 flex justify-end flex-shrink-0">
             <Button
               onClick={handleCreateGPT}
               disabled={isCreating || !gptName || !gptDescription}
