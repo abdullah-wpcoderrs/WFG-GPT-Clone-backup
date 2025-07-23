@@ -342,6 +342,7 @@ export default function SuperGPTsPage() {
       title="All GPTs"
       description="Manage and monitor all AI assistants across the organization."
     >
+      <div className="space-y-6">
       {/* System Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -672,6 +673,7 @@ export default function SuperGPTsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </DashboardLayout>
   )
 }

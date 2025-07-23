@@ -307,6 +307,7 @@ export default function SuperSecurityPage() {
       title="Security Center"
       description="Monitor security events, manage access controls, and enforce policies."
     >
+      <div className="space-y-6">
       {/* Security Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -751,6 +752,7 @@ export default function SuperSecurityPage() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </DashboardLayout>
   )
 }

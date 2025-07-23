@@ -353,6 +353,7 @@ export default function SuperDocumentsPage() {
       title="Document Library"
       description="Manage and monitor all documents across the organization."
     >
+      <div className="space-y-6">
       {/* Document Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -791,6 +792,7 @@ export default function SuperDocumentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </DashboardLayout>
   )
 }

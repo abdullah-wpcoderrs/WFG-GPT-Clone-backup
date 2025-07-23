@@ -354,6 +354,7 @@ export default function SuperPromptsPage() {
       title="Prompt Library"
       description="Manage and organize prompt templates across the organization."
     >
+      <div className="space-y-6">
       {/* Prompt Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -835,6 +836,7 @@ export default function SuperPromptsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </DashboardLayout>
   )
 }

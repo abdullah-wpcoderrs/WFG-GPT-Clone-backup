@@ -129,6 +129,7 @@ export default function SuperAdminChatsPage() {
       title="My Chats"
       description="View and manage your conversation history with AI assistants."
     >
+      <div className="space-y-6">
       {/* Search and Filters */}
       <Card className="border-[#E0E0E0] shadow-none">
         <CardContent className="p-6">
@@ -265,6 +266,7 @@ export default function SuperAdminChatsPage() {
           )}
         </CardContent>
       </Card>
+      </div>
     </DashboardLayout>
   )
 }

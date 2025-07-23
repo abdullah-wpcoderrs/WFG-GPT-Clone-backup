@@ -166,6 +166,7 @@ export default function ProjectsPage() {
       title="My Projects"
       description="Organize your chats and outputs into named projects for better management."
     >
+      <div className="space-y-6">
       {/* Search and Create */}
       <Card className="border-[#E0E0E0] shadow-none">
         <CardContent className="p-6">
@@ -305,6 +306,7 @@ export default function ProjectsPage() {
           </CardContent>
         </Card>
       )}
+      </div>
     </DashboardLayout>
   )
 }

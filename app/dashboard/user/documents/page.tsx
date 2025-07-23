@@ -182,51 +182,52 @@ export default function DocumentsPage() {
       title="Team Documents"
       description="Access documents shared with your team and organization-wide resources."
     >
-      {/* Search and Filters */}
-      <Card className="border-[#E0E0E0] shadow-none">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search documents by name, description, or category..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-                />
+      <div className="space-y-6">
+        {/* Search and Filters */}
+        <Card className="border-[#E0E0E0] shadow-none">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search documents by name, description, or category..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-[#E0E0E0] focus:border-[#66BB6A] focus:ring-[#66BB6A]"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="px-3 py-2 border border-[#E0E0E0] rounded-md text-sm focus:border-[#66BB6A] focus:ring-[#66BB6A]"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category === "all" ? "All Categories" : category}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={filterAccess}
+                  onChange={(e) => setFilterAccess(e.target.value)}
+                  className="px-3 py-2 border border-[#E0E0E0] rounded-md text-sm focus:border-[#66BB6A] focus:ring-[#66BB6A]"
+                >
+                  {accessLevels.map((access) => (
+                    <option key={access} value={access}>
+                      {access === "all" ? "All Access Levels" : access}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex gap-2">
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="px-3 py-2 border border-[#E0E0E0] rounded-md text-sm focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-              >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category === "all" ? "All Categories" : category}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filterAccess}
-                onChange={(e) => setFilterAccess(e.target.value)}
-                className="px-3 py-2 border border-[#E0E0E0] rounded-md text-sm focus:border-[#66BB6A] focus:ring-[#66BB6A]"
-              >
-                {accessLevels.map((access) => (
-                  <option key={access} value={access}>
-                    {access === "all" ? "All Access Levels" : access}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Documents Table */}
-      <Card className="border-[#E0E0E0] shadow-none">
+        {/* Documents Table */}
+        <Card className="border-[#E0E0E0] shadow-none">
         <CardHeader>
           <CardTitle className="text-xl text-[#2C2C2C]">Available Documents</CardTitle>
           <CardDescription>
@@ -315,6 +316,7 @@ export default function DocumentsPage() {
           )}
         </CardContent>
       </Card>
+      </div>
     </DashboardLayout>
   )
 }

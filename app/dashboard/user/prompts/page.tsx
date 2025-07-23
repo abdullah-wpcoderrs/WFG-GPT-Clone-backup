@@ -248,6 +248,7 @@ export default function PromptsPage() {
       title="Prompt Library"
       description="Manage your personal prompt templates and access organization-wide prompts."
     >
+      <div className="space-y-6">
       {/* Search and Create */}
       <Card className="border-[#E0E0E0] shadow-none">
         <CardContent className="p-6">
@@ -381,6 +382,7 @@ export default function PromptsPage() {
           )}
         </TabsContent>
       </Tabs>
+      </div>
     </DashboardLayout>
   )
 }

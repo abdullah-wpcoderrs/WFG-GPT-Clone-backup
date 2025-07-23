@@ -339,6 +339,7 @@ export default function SuperUsersPage() {
       title="User Management"
       description="Manage all users across the organization with comprehensive controls."
     >
+      <div className="space-y-6">
       {/* User Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -666,6 +667,7 @@ export default function SuperUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </DashboardLayout>
   )
 }

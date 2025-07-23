@@ -14,7 +14,7 @@ export function MainContent({ children, title, description }: MainContentProps) 
           {description && <p className="text-gray-600">{description}</p>}
         </div>
       )}
-      <div className="flex-1 min-h-0 px-6 pb-6">{children}</div>
+      <div className="flex-1 min-h-0 overflow-auto px-6 pb-6">{children}</div>
     </main>
   )
 }

@@ -68,6 +68,7 @@ export default function SuperAdminDashboard() {
       title="System Overview"
       description="Monitor and manage the entire GPTWorkDesk platform."
     >
+      <div className="space-y-6">
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="border-[#E0E0E0] shadow-none">
@@ -172,6 +173,7 @@ export default function SuperAdminDashboard() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </DashboardLayout>
   )
 }
