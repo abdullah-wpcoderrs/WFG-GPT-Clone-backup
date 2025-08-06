@@ -58,12 +58,6 @@ const navigationItems = [
     description: "Team conversation history",
   },
   {
-    name: "My Chats",
-    href: "/dashboard/admin/chats",
-    icon: MessageSquare,
-    description: "My personal chat history",
-  },
-  {
     name: "Documents",
     href: "/dashboard/admin/documents",
     icon: FileText,
@@ -126,9 +120,9 @@ export default function AdminGPTsPage() {
       title="Team GPTs"
       description="Manage your team's AI assistants."
     >
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-[#2C2C2C]">Team GPTs</h1>
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-6 w-full md:w-auto">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input

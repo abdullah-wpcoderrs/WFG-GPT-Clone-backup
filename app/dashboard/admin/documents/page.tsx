@@ -40,6 +40,7 @@ import {
   FolderOpen,
 } from "lucide-react"
 
+// Define navigation items for this dashboard section
 const navigationItems = [
   {
     name: "Team Dashboard",
@@ -253,7 +254,7 @@ export default function AdminDocumentsPage() {
       description="Manage your team's document library and knowledge base."
     >
       {/* Document Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card className="border-[#E0E0E0] shadow-none">
           <CardContent className="p-6">
             <div className="flex items-center">
@@ -308,7 +309,7 @@ export default function AdminDocumentsPage() {
       {/* Search and Upload */}
       <Card className="border-[#E0E0E0] shadow-none">
         <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -425,7 +426,7 @@ export default function AdminDocumentsPage() {
       </Card>
 
       {/* Documents Table */}
-      <Card className="border-[#E0E0E0] shadow-none">
+      <Card className="border-[#E0E0E0] shadow-none mt-6">
         <CardHeader>
           <CardTitle className="text-xl text-[#2C2C2C]">Team Documents</CardTitle>
           <CardDescription>

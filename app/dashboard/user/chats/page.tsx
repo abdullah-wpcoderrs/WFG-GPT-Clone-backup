@@ -151,7 +151,7 @@ export default function UserChatsPage() {
       </Card>
 
       {/* Chat History Table */}
-      <Card className="border-[#E0E0E0] shadow-none">
+      <Card className="border-[#E0E0E0] shadow-none mt-6">
         <CardHeader>
           <CardTitle className="text-xl text-[#2C2C2C]">Chat History</CardTitle>
           <CardDescription>

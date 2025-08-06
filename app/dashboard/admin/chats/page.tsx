@@ -52,12 +52,6 @@ const navigationItems = [
     description: "Team conversation history",
   },
   {
-    name: "My Chats",
-    href: "/dashboard/admin/chats",
-    icon: MessageSquare,
-    description: "My personal chat history",
-  },
-  {
     name: "Documents",
     href: "/dashboard/admin/documents",
     icon: FileText,

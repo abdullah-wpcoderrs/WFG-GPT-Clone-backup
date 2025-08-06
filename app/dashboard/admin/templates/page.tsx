@@ -38,6 +38,7 @@ import {
   TrendingUp,
 } from "lucide-react"
 
+// Define navigation items for this dashboard section
 const navigationItems = [
   {
     name: "Team Dashboard",
@@ -370,7 +371,7 @@ export default function AdminTemplatesPage() {
       description="Create and manage reusable prompt templates for your team."
     >
       {/* Template Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card className="border-[#E0E0E0] shadow-none">
           <CardContent className="p-6">
             <div className="flex items-center">
@@ -421,9 +422,9 @@ export default function AdminTemplatesPage() {
       </div>
 
       {/* Search and Create */}
-      <Card className="border-[#E0E0E0] shadow-none">
+      <Card className="border-[#E0E0E0] shadow-none mt-6">
         <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -445,7 +446,7 @@ export default function AdminTemplatesPage() {
 
       {/* Templates Grid */}
       {filteredTeamTemplates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {filteredTeamTemplates.map((template) => (
             <TemplateCard key={template.id} template={template} />
           ))}

@@ -18,54 +18,55 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
+// Define navigation items for this dashboard section
 const navigationItems = [
   {
     name: "Team Dashboard",
     href: "/dashboard/admin",
     icon: BarChart3,
-    description: "Team metrics",
+    description: "Team overview & metrics",
   },
   {
     name: "Team GPTs",
     href: "/dashboard/admin/gpts",
     icon: Brain,
-    description: "Team GPTs",
+    description: "Manage team AI assistants",
   },
   {
     name: "Team Members",
     href: "/dashboard/admin/members",
     icon: Users,
-    description: "Team members",
+    description: "User management & activity",
   },
   {
     name: "Chat Logs",
     href: "/dashboard/admin/logs",
     icon: MessageSquare,
-    description: "Chat logs",
+    description: "Team conversation history",
   },
   {
-    name: "My Chats", // New navigation item for personal chat history
+    name: "My Chats",
     href: "/dashboard/admin/chats",
     icon: MessageSquare,
-    description: "My chats",
+    description: "My personal chat history",
   },
   {
     name: "Documents",
     href: "/dashboard/admin/documents",
     icon: FileText,
-    description: "Docs",
+    description: "Team document library",
   },
   {
     name: "Prompt Templates",
     href: "/dashboard/admin/templates",
     icon: BookOpen,
-    description: "Prompts",
+    description: "Team prompt library",
   },
   {
     name: "Settings",
     href: "/dashboard/admin/settings",
     icon: Settings,
-    description: "Settings",
+    description: "Team configuration",
   },
 ]
 
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
       description="Manage your team's AI tools, members, and resources."
     >
       {/* Team Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card className="border-[#E0E0E0] shadow-none">
           <CardContent className="p-6">
             <div className="flex items-center">
@@ -128,13 +129,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-[#E0E0E0] shadow-none">
+      <Card className="border-[#E0E0E0] shadow-none mt-6">
         <CardHeader>
           <CardTitle className="text-xl text-[#2C2C2C]">Quick Actions</CardTitle>
           <CardDescription>Common administrative tasks for your team</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             <Button
               asChild
               variant="outline"

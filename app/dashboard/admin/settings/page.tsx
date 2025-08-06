@@ -25,6 +25,7 @@ import {
   Trash2,
 } from "lucide-react"
 
+// Define navigation items for this dashboard section
 const navigationItems = [
   {
     name: "Team Dashboard",
