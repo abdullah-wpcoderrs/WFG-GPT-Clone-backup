@@ -39,6 +39,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Crown,
+  MessageSquare,
 } from "lucide-react"
 
 const navigationItems = [
@@ -52,7 +53,7 @@ const navigationItems = [
     name: "All GPTs",
     href: "/dashboard/super/gpts",
     icon: Brain,
-    description: "Organization GPT management",
+    description: "Org GPT management",
   },
   {
     name: "User Management",
@@ -64,19 +65,26 @@ const navigationItems = [
     name: "Teams & Units",
     href: "/dashboard/super/teams",
     icon: Building2,
-    description: "Team structure & assignments",
+    description: "Team structure",
   },
   {
     name: "Document Library",
     href: "/dashboard/super/documents",
     icon: FileText,
-    description: "Global document management",
+    description: "Document management",
   },
   {
     name: "Prompt Library",
     href: "/dashboard/super/prompts",
     icon: BookOpen,
-    description: "Organization prompt templates",
+    description: "Org Prompt templates",
+  },
+  // New navigation item for personal chat history
+  {
+    name: "Chat History", 
+    href: "/dashboard/super/chats",
+    icon: MessageSquare,
+    description: "Chat logs",
   },
   {
     name: "System Settings",

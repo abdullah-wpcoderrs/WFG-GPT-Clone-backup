@@ -48,28 +48,29 @@ const navigationItems = [
     description: "All users & permissions",
   },
   {
-    name: "Teams",
+    name: "Teams & Units",
     href: "/dashboard/super/teams",
     icon: Building2,
     description: "Team structure",
   },
   {
-    name: "Doc Library",
+    name: "Document Library",
     href: "/dashboard/super/documents",
     icon: FileText,
-    description: "Global docs",
+    description: "Document management",
   },
   {
     name: "Prompt Library",
     href: "/dashboard/super/prompts",
     icon: BookOpen,
-    description: "Org prompt templates",
+    description: "Org Prompt templates",
   },
+  // New navigation item for personal chat history
   {
-    name: "My Chats",
+    name: "Chat History", 
     href: "/dashboard/super/chats",
     icon: MessageSquare,
-    description: "My personal chat history",
+    description: "Chat logs",
   },
   {
     name: "System Settings",

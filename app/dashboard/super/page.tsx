@@ -9,40 +9,41 @@ const navigationItems = [
     name: "Overview",
     href: "/dashboard/super",
     icon: BarChart3,
-    description: "Org metrics",
+    description: "System-wide metrics",
   },
   {
     name: "All GPTs",
     href: "/dashboard/super/gpts",
     icon: Brain,
-    description: "Org GPTs",
+    description: "Org GPT management",
   },
   {
     name: "User Management",
     href: "/dashboard/super/users",
     icon: Users,
-    description: "Users",
+    description: "All users & permissions",
   },
   {
     name: "Teams & Units",
     href: "/dashboard/super/teams",
     icon: Building2,
-    description: "Teams",
+    description: "Team structure",
   },
   {
     name: "Document Library",
     href: "/dashboard/super/documents",
     icon: FileText,
-    description: "Docs",
+    description: "Document management",
   },
   {
     name: "Prompt Library",
     href: "/dashboard/super/prompts",
     icon: BookOpen,
-    description: "Prompts",
+    description: "Org Prompt templates",
   },
+  // New navigation item for personal chat history
   {
-    name: "Chat History", // New navigation item for personal chat history
+    name: "Chat History", 
     href: "/dashboard/super/chats",
     icon: MessageSquare,
     description: "Chat logs",
@@ -51,13 +52,13 @@ const navigationItems = [
     name: "System Settings",
     href: "/dashboard/super/settings",
     icon: Settings,
-    description: "Settings",
+    description: "Platform configuration",
   },
   {
     name: "Security",
     href: "/dashboard/super/security",
     icon: Shield,
-    description: "Security",
+    description: "Access control & policies",
   },
 ]
 
