@@ -15,16 +15,16 @@ import { Brain, MessageSquare, FolderOpen, BookOpen, FileText, Settings, Save, U
 
 const navigationItems = [
   {
-    name: "My GPT Tools",
+    name: "Dashboard",
     href: "/dashboard/user",
     icon: Brain,
-    description: "Access your assigned GPTs",
+    description: "Overview",
   },
   {
     name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history & sessions",
+    description: "Chat history",
   },
   {
     name: "My Projects",
@@ -36,13 +36,13 @@ const navigationItems = [
     name: "Prompt Library",
     href: "/dashboard/user/prompts",
     icon: BookOpen,
-    description: "Saved prompt templates",
+    description: "Saved prompt",
   },
   {
     name: "Team Documents",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Shared team resources",
+    description: "Shared team files",
   },
   {
     name: "Settings",

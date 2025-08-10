@@ -21,46 +21,47 @@ import {
   Calendar,
   Clock,
   Eye,
+  BookOpen,
 } from "lucide-react"
 import { mockChatSessions } from "@/lib/mock-data"
 import Link from "next/link"
 
 const navigationItems = [
   {
-    name: "My Dashboard",
+    name: "Dashboard",
     href: "/dashboard/user",
-    icon: User,
-    description: "Personal overview",
+    icon: Brain,
+    description: "Overview",
   },
   {
-    name: "Chat with GPTs",
+    name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "AI conversations",
+    description: "Chat history",
   },
   {
     name: "My Projects",
     href: "/dashboard/user/projects",
     icon: FolderOpen,
-    description: "Project workspace",
+    description: "Organized chat folders",
   },
   {
-    name: "My Docs",
+    name: "Prompt Library",
+    href: "/dashboard/user/prompts",
+    icon: BookOpen,
+    description: "Saved prompt",
+  },
+  {
+    name: "Team Documents",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Document library",
-  },
-  {
-    name: "My Prompts",
-    href: "/dashboard/user/prompts",
-    icon: Brain,
-    description: "Saved prompts",
+    description: "Shared team files",
   },
   {
     name: "Settings",
     href: "/dashboard/user/settings",
     icon: Settings,
-    description: "Account settings",
+    description: "Profile & preferences",
   },
 ]
 

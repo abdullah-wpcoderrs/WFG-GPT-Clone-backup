@@ -486,7 +486,7 @@ export default function SuperTeamsPage() {
       </div>
 
       {/* Search and Create */}
-      <Card className="border-[#E0E0E0] shadow-none">
+      <Card className="border-[#E0E0E0] shadow-none mt-6 mb-6">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1">
