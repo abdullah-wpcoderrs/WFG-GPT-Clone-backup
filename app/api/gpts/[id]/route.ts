@@ -14,7 +14,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   const { id } = params
-  const initialLength = mockGptsData.length
   const index = mockGptsData.findIndex((g) => g.id === id)
 
   if (index !== -1) {

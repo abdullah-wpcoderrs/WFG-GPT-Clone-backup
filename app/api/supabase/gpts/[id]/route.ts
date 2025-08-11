@@ -47,7 +47,7 @@ export async function PUT(
     const body = await request.json()
     
     // Remove fields that shouldn't be updated via API
-    const { id, creator_id, team_id, created_at, ...updates } = body
+    const { id: _, creator_id: __, team_id: ___, created_at: ____, ...updates } = body
 
     const { data, error } = await gptsAPI.updateGPT(params.id, updates)
 

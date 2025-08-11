@@ -7,6 +7,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { mockGPTs } from "@/lib/mock-data"
 import { Brain, Users, MessageSquare, FileText, BookOpen, BarChart3, Settings } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { ChatMessage } from "@/types"
 
 const navigationItems = [
   {
@@ -64,7 +65,7 @@ export default function AdminChatPage({ params }: { params: { gptId: string } })
   const router = useRouter()
   const { toast } = useToast()
   const [sessionId, setSessionId] = useState<string | null>(null)
-  const [initialMessages, setInitialMessages] = useState<any[]>([])
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   
   const gpt = mockGPTs.find((g) => g.id === gptId)
@@ -106,7 +107,7 @@ export default function AdminChatPage({ params }: { params: { gptId: string } })
         // Fetch initial messages for the session
         // In a real app, you would fetch from your database
         // For now, we'll use mock data
-        const mockMessages: any[] = [] // Empty for new sessions
+        const mockMessages: ChatMessage[] = [] // Empty for new sessions
         
         setSessionId(sessionIdToUse)
         setInitialMessages(mockMessages)
@@ -123,7 +124,7 @@ export default function AdminChatPage({ params }: { params: { gptId: string } })
     }
 
     initializeChatSession()
-  }, [gptId])
+  }, [gptId, toast])
 
   if (isLoading) {
     return (

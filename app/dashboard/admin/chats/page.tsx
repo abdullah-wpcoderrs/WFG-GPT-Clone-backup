@@ -78,7 +78,7 @@ const navigationItems = [
 ]
 
 export default function AdminChatsPage() {
-  const { user } = useAuth() // Assuming user is admin-1 for mock data
+  const { user: _user } = useAuth() // Assuming user is admin-1 for mock data
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState("all")
 

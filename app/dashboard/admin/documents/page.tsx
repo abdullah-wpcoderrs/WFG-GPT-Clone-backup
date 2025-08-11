@@ -85,6 +85,12 @@ const navigationItems = [
     description: "Team prompt library",
   },
   {
+    name: "Memory Management",
+    href: "/dashboard/admin/memory",
+    icon: BookOpen,
+    description: "Manage team knowledge base",
+  },
+  {
     name: "Settings",
     href: "/dashboard/admin/settings",
     icon: Settings,
@@ -360,7 +366,7 @@ export default function AdminDocumentsPage() {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Upload Document</DialogTitle>
-                    <DialogDescription>Add a new document to your team's knowledge base.</DialogDescription>
+                    <DialogDescription>Add a new document to your team&apos;s knowledge base.</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>

@@ -12,6 +12,9 @@ export async function POST(req: Request) {
 
   const systemPrompt = `You are ${gptName}, a helpful AI assistant for the GPTWorkDesk platform. 
 ${sessionId ? `This is a continuation of session ${sessionId}.` : "This is a new conversation."}
+
+If document context is provided with a user message, use that information to enhance your responses. The document context will be appended to the end of user messages when available.
+
 Provide concise and relevant answers based on your role as ${gptName}.`
 
   const result = await streamText({

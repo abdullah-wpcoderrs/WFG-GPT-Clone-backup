@@ -14,6 +14,7 @@ import {
   UserPlus,
   Upload,
   LayoutTemplate,
+  Check,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -67,6 +68,12 @@ const navigationItems = [
     href: "/dashboard/admin/settings",
     icon: Settings,
     description: "Team configuration",
+  },
+  {
+    name: "Approvals",
+    href: "/dashboard/admin/approvals",
+    icon: Check,
+    description: "Review approval requests",
   },
 ]
 

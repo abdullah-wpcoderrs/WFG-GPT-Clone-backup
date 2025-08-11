@@ -54,6 +54,14 @@ export interface ChatMessage {
   sender: "user" | "gpt"
   content: string
   created_at: string
+  attachments?: MessageAttachment[]
+}
+
+export interface MessageAttachment {
+  id: string
+  fileName: string
+  fileSize: number
+  fileType: string
 }
 
 export interface Document {
@@ -64,4 +72,23 @@ export interface Document {
   file_url: string
   created_at: string
   team_id?: string
+}
+
+export interface DocumentReport {
+  id: string
+  session_id: string
+  title: string
+  content: string
+  format: 'pdf' | 'docx' | 'txt'
+  created_at: string
+  generated_by: string
+  status: 'generating' | 'completed' | 'failed'
+}
+
+export interface DocumentRequest {
+  id: string
+  session_id: string
+  prompt: string
+  created_at: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
 }
