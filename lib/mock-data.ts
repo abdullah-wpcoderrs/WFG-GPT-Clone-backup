@@ -1,4 +1,4 @@
-import type { User, Document, ChatSession, ChatMessage, GPT } from "@/types"
+import type { User, Document, ChatSession, ChatMessage, GPT, Project } from "@/types"
 
 // Mock Users with correct login credentials
 export const mockUsers: User[] = [
@@ -120,6 +120,37 @@ export const mockGPTs: GPT[] = [
 ]
 
 // Mock Projects
+export const mockProjects: Project[] = [
+  {
+    id: "project-1",
+    name: "Q1 Marketing Campaign",
+    description: "Launch campaign for the new product line.",
+    status: "active",
+    team_id: "team-2",
+  },
+  {
+    id: "project-2",
+    name: "Website Redesign",
+    description: "Complete redesign of the corporate website.",
+    status: "active",
+    team_id: "team-1",
+  },
+  {
+    id: "project-3",
+    name: "Mobile App Development",
+    description: "Develop the new iOS and Android applications.",
+    status: "completed",
+    team_id: "team-1",
+  },
+  {
+    id: "project-4",
+    name: "Internal Knowledge Base",
+    description: "Create a centralized wiki for all teams.",
+    status: "inactive",
+    team_id: "team-3",
+  },
+]
+
 // Mock Documents
 export const mockDocuments: Document[] = [
   {
@@ -130,6 +161,8 @@ export const mockDocuments: Document[] = [
     file_url: "/documents/project-requirements.pdf",
     created_at: new Date("2024-01-15").toISOString(),
     team_id: "team-1",
+    size: 1258291, // 1.2 MB
+    type: "pdf",
   },
   {
     id: "2",
@@ -139,6 +172,8 @@ export const mockDocuments: Document[] = [
     file_url: "/documents/design-mockups.figma",
     created_at: new Date("2024-01-16").toISOString(),
     team_id: "team-1",
+    size: 5662310, // 5.4 MB
+    type: "figma",
   },
   {
     id: "3",
@@ -148,6 +183,8 @@ export const mockDocuments: Document[] = [
     file_url: "/documents/meeting-notes.docx",
     created_at: new Date("2024-01-12").toISOString(),
     team_id: "team-2",
+    size: 262144, // 256 KB
+    type: "docx",
   },
 ]
 
@@ -230,23 +267,6 @@ export const mockChatMessages: ChatMessage[] = [
       "I'd be happy to help you with modern website design trends! Here are some key trends for 2024:\n\n1. **Minimalist Design**: Clean, uncluttered layouts with plenty of white space\n2. **Bold Typography**: Large, eye-catching fonts as design elements\n3. **Dark Mode**: Offering both light and dark theme options\n4. **Micro-interactions**: Subtle animations that enhance user experience\n5. **Mobile-first Design**: Responsive layouts optimized for mobile devices\n\nWhat type of company website are you designing? This will help me provide more specific recommendations.",
     created_at: new Date("2024-01-20T10:02:00").toISOString(),
   },
-  {
-    id: "msg-3",
-    session_id: "session-1",
-    sender: "user",
-    content:
-      "It's for a tech startup focused on AI solutions. We want something that looks innovative and trustworthy.",
-    created_at: new Date("2024-01-20T10:05:00").toISOString(),
-  },
-  {
-    id: "msg-4",
-    session_id: "session-1",
-    sender: "gpt",
-    content:
-      "Perfect! For an AI tech startup, here are some specific design recommendations:\n\n**Color Palette:**\n- Primary: Deep blues or teals (convey trust and technology)\n- Accent: Bright cyan or electric blue (innovation)\n- Neutral: Clean grays and whites\n\n**Visual Elements:**\n- Geometric patterns or subtle grid overlays\n- Abstract tech illustrations\n- Data visualization elements\n- Gradient overlays on hero sections\n\n**Layout Structure:**\n- Hero section with clear value proposition\n- Product/service showcase with interactive demos\n- Trust indicators (testimonials, logos, certifications)\n- Clear call-to-action buttons\n\nWould you like me to elaborate on any of these elements?",
-    created_at: new Date("2024-01-20T10:08:00").toISOString(),
-  },
-  // Session 2 messages
   {
     id: "msg-3",
     session_id: "session-1",

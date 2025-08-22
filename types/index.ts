@@ -36,6 +36,14 @@ export interface GPT {
   access_level?: "team" | "organization"
 }
 
+export interface Project {
+  id: string
+  name: string
+  description: string
+  status: "active" | "inactive" | "completed"
+  team_id: string
+}
+
 export interface ChatSession {
   id: string
   user_id: string
@@ -72,6 +80,8 @@ export interface Document {
   file_url: string
   created_at: string
   team_id?: string
+  size: number
+  type: string
 }
 
 export interface DocumentReport {
