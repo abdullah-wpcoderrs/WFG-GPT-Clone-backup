@@ -41,12 +41,17 @@ const navigationItems = [
     icon: BookOpen,
     description: "Org Prompt templates",
   },
-  // New navigation item for personal chat history
+  {
+    name: "Messages",
+    href: "/dashboard/super/messages",
+    icon: MessageSquare,
+    description: "Organization conversations",
+  },
   {
     name: "Chat History", 
     href: "/dashboard/super/chats",
     icon: MessageSquare,
-    description: "Chat logs",
+    description: "AI chat logs",
   },
   {
     name: "System Settings",

@@ -30,10 +30,16 @@ const navigationItems = [
     description: "Overview",
   },
   {
+    name: "Messages",
+    href: "/dashboard/user/messages",
+    icon: MessageSquare,
+    description: "Team conversations",
+  },
+  {
     name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history",
+    description: "AI chat history",
   },
   {
     name: "My Projects",
@@ -277,10 +283,16 @@ export default function UserDashboard() {
                   Create New Project
                 </Button>
               </Link>
+              <Link href="/dashboard/user/messages">
+                <Button variant="outline" className="w-full justify-start bg-transparent">
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Start Team Conversation
+                </Button>
+              </Link>
               <Link href="/dashboard/user/chats">
                 <Button variant="outline" className="w-full justify-start bg-transparent">
                   <MessageSquare className="mr-2 h-4 w-4" />
-                  Start New Chat
+                  Start AI Chat
                 </Button>
               </Link>
               <Link href="/dashboard/user/documents">
