@@ -29,16 +29,16 @@ const navigationItems = [
     description: "Overview",
   },
   {
-    name: "My Chats",
-    href: "/dashboard/user/chats",
-    icon: MessageSquare,
-    description: "AI chat history",
-  },
-  {
     name: "Messages",
     href: "/dashboard/user/messages",
     icon: MessageSquare,
     description: "Team conversations",
+  },
+  {
+    name: "My Chats",
+    href: "/dashboard/user/chats",
+    icon: MessageSquare,
+    description: "AI chat history",
   },
   {
     name: "My Projects",
@@ -50,7 +50,7 @@ const navigationItems = [
     name: "Prompt Library",
     href: "/dashboard/user/prompts",
     icon: BookOpen,
-    description: "Saved prompts",
+    description: "Saved prompt",
   },
   {
     name: "Team Documents",

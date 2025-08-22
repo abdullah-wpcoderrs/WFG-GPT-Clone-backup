@@ -34,10 +34,16 @@ const navigationItems = [
     description: "Overview",
   },
   {
+    name: "Messages",
+    href: "/dashboard/user/messages",
+    icon: MessageSquare,
+    description: "Team conversations",
+  },
+  {
     name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history",
+    description: "AI chat history",
   },
   {
     name: "My Projects",

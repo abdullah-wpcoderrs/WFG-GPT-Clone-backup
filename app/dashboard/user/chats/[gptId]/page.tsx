@@ -10,16 +10,22 @@ import { useToast } from "@/components/ui/use-toast"
 
 const navigationItems = [
   {
-    name: "My GPT Tools",
+    name: "Dashboard",
     href: "/dashboard/user",
     icon: Brain,
-    description: "Access your assigned GPTs",
+    description: "Overview",
+  },
+  {
+    name: "Messages",
+    href: "/dashboard/user/messages",
+    icon: MessageSquare,
+    description: "Team conversations",
   },
   {
     name: "My Chats",
     href: "/dashboard/user/chats",
     icon: MessageSquare,
-    description: "Chat history & sessions",
+    description: "AI chat history",
   },
   {
     name: "My Projects",
@@ -31,13 +37,13 @@ const navigationItems = [
     name: "Prompt Library",
     href: "/dashboard/user/prompts",
     icon: BookOpen,
-    description: "Saved prompt templates",
+    description: "Saved prompt",
   },
   {
     name: "Team Documents",
     href: "/dashboard/user/documents",
     icon: FileText,
-    description: "Shared team resources",
+    description: "Shared team files",
   },
   {
     name: "Settings",
