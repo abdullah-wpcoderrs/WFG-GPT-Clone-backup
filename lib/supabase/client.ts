@@ -10,6 +10,11 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 // Single Supabase client instance for client-side usage
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
 
+// Client-side Supabase client factory function
+export const createSupabaseClient = () => {
+  return createClient<Database>(supabaseUrl, supabaseAnonKey)
+}
+
 // Server-side Supabase client
 export const createSupabaseServerClient = () => {
   const cookieStore = cookies()

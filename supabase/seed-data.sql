@@ -15,7 +15,7 @@ INSERT INTO teams (id, name, description, settings, member_count) VALUES
 ('550e8400-e29b-41d4-a716-446655440008', 'Employee Relations Team', 'HR policy and employee engagement team', '{"theme": "light", "notifications": false}', 2);
 
 -- Insert sample users (HR consultants and staff)
-INSERT INTO profiles (id, email, name, avatar, role, team_id, settings) VALUES
+INSERT INTO users (id, email, name, avatar, role, team_id, settings) VALUES
 ('550e8400-e29b-41d4-a716-446655440100', 'superadmin@test.com', 'Super Admin', '/placeholder-user.jpg', 'super_admin', '550e8400-e29b-41d4-a716-446655440000', '{"language": "en", "timezone": "UTC"}'),
 ('550e8400-e29b-41d4-a716-446655440101', 'admin@test.com', 'Finance Admin', '/placeholder-user.jpg', 'admin', '550e8400-e29b-41d4-a716-446655440000', '{"language": "en", "timezone": "UTC"}'),
 ('550e8400-e29b-41d4-a716-446655440102', 'user@test.com', 'John Doe', '/placeholder-user.jpg', 'user', '550e8400-e29b-41d4-a716-446655440000', '{"language": "en", "timezone": "UTC"}'),
@@ -116,7 +116,7 @@ INSERT INTO usage_analytics (user_id, team_id, gpt_id, session_id, event_type, t
 
 -- Comments for documentation
 COMMENT ON TABLE teams IS 'HR consulting departments and specialization areas';
-COMMENT ON TABLE profiles IS 'HR consultants and staff with different expertise levels';
+COMMENT ON TABLE users IS 'HR consultants and staff with different expertise levels';
 COMMENT ON TABLE gpts IS 'AI assistants specialized for HR and consulting tasks';
 COMMENT ON TABLE projects IS 'HR consulting projects across recruitment, policy, and compensation';
 COMMENT ON TABLE documents IS 'HR templates, policies, and consulting deliverables';

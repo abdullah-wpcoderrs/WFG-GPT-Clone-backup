@@ -2,7 +2,7 @@
 
 ## Phase 1: Database Schema and Backend Setup
 
-### 1.1 Database Schema Implementation
+<!-- ### 1.1 Database Schema Implementation
 - [ ] **Create new database tables**
   - [ ] Create `user_conversations` table
   - [ ] Create `user_messages` table  
@@ -23,7 +23,7 @@
   - [ ] Create RLS policies for user_conversations
   - [ ] Create RLS policies for user_messages
   - [ ] Create RLS policies for user_presence
-  - [ ] Test RLS policies with different user roles
+  - [ ] Test RLS policies with different user roles -->
 
 ### 1.2 API Services Development
 - [ ] **Create UserChatAPI service**

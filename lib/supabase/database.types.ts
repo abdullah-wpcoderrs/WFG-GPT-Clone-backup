@@ -314,6 +314,36 @@ export type Database = {
           }
         ]
       }
+      internet_search_cache: {
+        Row: {
+          id: string
+          query_hash: string
+          query: string
+          provider: Database["public"]["Enums"]["search_provider"]
+          results: Json
+          created_at: string
+          expires_at: string
+        }
+        Insert: {
+          id?: string
+          query_hash: string
+          query: string
+          provider: Database["public"]["Enums"]["search_provider"]
+          results: Json
+          created_at?: string
+          expires_at?: string
+        }
+        Update: {
+          id?: string
+          query_hash?: string
+          query?: string
+          provider?: Database["public"]["Enums"]["search_provider"]
+          results?: Json
+          created_at?: string
+          expires_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           id: string
@@ -464,6 +494,73 @@ export type Database = {
           }
         ]
       }
+      pdf_generation_jobs: {
+        Row: {
+          id: string
+          session_id: string
+          user_id: string
+          team_id: string
+          prompt: string
+          content: string | null
+          file_url: string | null
+          status: string
+          error_message: string | null
+          created_at: string
+          updated_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_id: string
+          team_id: string
+          prompt: string
+          content?: string | null
+          file_url?: string | null
+          status?: string
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_id?: string
+          team_id?: string
+          prompt?: string
+          content?: string | null
+          file_url?: string | null
+          status?: string
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_generation_jobs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdf_generation_jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdf_generation_jobs_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       usage_analytics: {
         Row: {
           id: string
@@ -531,6 +628,204 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      document_chunks: {
+        Row: {
+          id: string
+          document_id: string
+          chunk_index: number
+          chunk_type: Database["public"]["Enums"]["chunk_type"] | null
+          content: string
+          metadata: Json | null
+          word_count: number | null
+          char_count: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          document_id: string
+          chunk_index: number
+          chunk_type?: Database["public"]["Enums"]["chunk_type"] | null
+          content: string
+          metadata?: Json | null
+          word_count?: number | null
+          char_count?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          document_id?: string
+          chunk_index?: number
+          chunk_type?: Database["public"]["Enums"]["chunk_type"] | null
+          content?: string
+          metadata?: Json | null
+          word_count?: number | null
+          char_count?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      document_embeddings: {
+        Row: {
+          id: string
+          chunk_id: string
+          embedding: number[] | null
+          model: Database["public"]["Enums"]["embedding_model"] | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          chunk_id: string
+          embedding?: number[] | null
+          model?: Database["public"]["Enums"]["embedding_model"] | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          chunk_id?: string
+          embedding?: number[] | null
+          model?: Database["public"]["Enums"]["embedding_model"] | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_embeddings_chunk_id_fkey"
+            columns: ["chunk_id"]
+            isOneToOne: false
+            referencedRelation: "document_chunks"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gpt_context_documents: {
+        Row: {
+          id: string
+          gpt_id: string
+          document_id: string
+          added_by: string
+          added_at: string
+          is_active: boolean | null
+          priority: number | null
+        }
+        Insert: {
+          id?: string
+          gpt_id: string
+          document_id: string
+          added_by: string
+          added_at?: string
+          is_active?: boolean | null
+          priority?: number | null
+        }
+        Update: {
+          id?: string
+          gpt_id?: string
+          document_id?: string
+          added_by?: string
+          added_at?: string
+          is_active?: boolean | null
+          priority?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gpt_context_documents_gpt_id_fkey"
+            columns: ["gpt_id"]
+            isOneToOne: false
+            referencedRelation: "gpts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gpt_context_documents_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gpt_context_documents_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      enhanced_memory_items: {
+        Row: {
+          id: string
+          session_id: string
+          user_id: string
+          team_id: string
+          content: string
+          embedding: number[] | null
+          importance_score: number | null
+          access_count: number | null
+          last_accessed_at: string | null
+          created_at: string
+          updated_at: string
+          tags: string[] | null
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_id: string
+          team_id: string
+          content: string
+          embedding?: number[] | null
+          importance_score?: number | null
+          access_count?: number | null
+          last_accessed_at?: string | null
+          created_at?: string
+          updated_at?: string
+          tags?: string[] | null
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_id?: string
+          team_id?: string
+          content?: string
+          embedding?: number[] | null
+          importance_score?: number | null
+          access_count?: number | null
+          last_accessed_at?: string | null
+          created_at?: string
+          updated_at?: string
+          tags?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enhanced_memory_items_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enhanced_memory_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enhanced_memory_items_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           }
         ]
@@ -621,6 +916,105 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_cached_search_results: {
+        Args: {
+          p_query: string
+          p_provider: Database["public"]["Enums"]["search_provider"]
+        }
+        Returns: Json
+      }
+      cache_search_results: {
+        Args: {
+          p_query: string
+          p_provider: Database["public"]["Enums"]["search_provider"]
+          p_results: Json
+        }
+        Returns: string
+      }
+      chunk_document: {
+        Args: {
+          p_document_id: string
+          p_content: string
+          p_chunk_size?: number
+          p_overlap?: number
+        }
+        Returns: number
+      }
+      find_similar_documents: {
+        Args: {
+          p_query_embedding: number[]
+          p_gpt_id?: string | null
+          p_team_id?: string | null
+          p_limit?: number
+          p_similarity_threshold?: number
+        }
+        Returns: {
+          chunk_id: string
+          document_id: string
+          document_name: string
+          chunk_content: string
+          similarity: number
+          chunk_index: number
+        }[]
+      }
+      get_chat_context: {
+        Args: {
+          p_session_id: string
+          p_query_embedding: number[]
+          p_max_tokens?: number
+        }
+        Returns: {
+          content: string
+          source_type: string
+          relevance_score: number
+        }[]
+      }
+      add_document_to_gpt_context: {
+        Args: {
+          p_gpt_id: string
+          p_document_id: string
+          p_user_id: string
+          p_priority?: number
+        }
+        Returns: string
+      }
+      remove_document_from_gpt_context: {
+        Args: {
+          p_gpt_id: string
+          p_document_id: string
+        }
+        Returns: boolean
+      }
+      update_memory_importance: {
+        Args: {
+          p_memory_id: string
+        }
+        Returns: undefined
+      }
+      create_context_window: {
+        Args: {
+          p_session_id: string
+          p_context_data: Json
+          p_embedding: number[]
+        }
+        Returns: string
+      }
+      search_all_content: {
+        Args: {
+          p_query: string
+          p_user_id: string
+          p_team_id: string
+          p_limit?: number
+        }
+        Returns: {
+          content_id: string
+          content_type: string
+          title: string
+          content_snippet: string
+          relevance_score: number
+          created_at: string
+        }[]
+      }
     }
     Enums: {
       access_level: "team" | "organization"
@@ -629,7 +1023,10 @@ export type Database = {
       gpt_status: "active" | "inactive" | "pending" | "suspended"
       message_sender: "user" | "gpt"
       risk_level: "low" | "medium" | "high"
+      search_provider: "google" | "bing" | "duckduckgo"
       user_role: "user" | "admin" | "super_admin"
+      chunk_type: "text" | "table" | "image" | "code" | "header"
+      embedding_model: "text-embedding-ada-002" | "text-embedding-3-small" | "text-embedding-3-large"
     }
     CompositeTypes: {
       [_ in never]: never
