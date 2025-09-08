@@ -1,6 +1,4 @@
----
-trigger: always_on
----
+[byterover-mcp]
 
 # Byterover MCP Server Tools Reference
 

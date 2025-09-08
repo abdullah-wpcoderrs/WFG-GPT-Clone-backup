@@ -41,22 +41,23 @@ CREATE TABLE teams (
   CONSTRAINT teams_name_check CHECK (length(name) >= 2)
 );
 
--- Users/Profiles table
-CREATE TABLE profiles (
+-- Insert a default team for all new users to be assigned to
+INSERT INTO teams (id, name) VALUES ('9f802d33-149d-476c-824a-a169b56f8742', 'Analyst') ON CONFLICT (id) DO NOTHING;
+
+-- Users table
+CREATE TABLE users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email VARCHAR(255) NOT NULL UNIQUE,
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(55) NOT NULL DEFAULT 'New Analyst',
   avatar TEXT,
   role user_role NOT NULL DEFAULT 'user',
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   last_active_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  settings JSONB DEFAULT '{}',
+  settings JSONB DEFAULT '{}'
   
-  CONSTRAINT profiles_name_check CHECK (length(name) >= 2),
-  CONSTRAINT profiles_email_check CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
+)
 
 -- GPTs table
 CREATE TABLE gpts (
@@ -68,7 +69,7 @@ CREATE TABLE gpts (
   temperature DECIMAL(3,2) DEFAULT 0.7 CHECK (temperature >= 0 AND temperature <= 2),
   max_tokens INTEGER DEFAULT 2048 CHECK (max_tokens > 0 AND max_tokens <= 32000),
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   status gpt_status DEFAULT 'active',
@@ -86,7 +87,7 @@ CREATE TABLE projects (
   name VARCHAR(255) NOT NULL,
   description TEXT,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   status project_status DEFAULT 'active',
@@ -103,7 +104,7 @@ CREATE TABLE documents (
   size BIGINT NOT NULL CHECK (size > 0),
   url TEXT NOT NULL,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  uploaded_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  uploaded_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   tags TEXT[] DEFAULT '{}',
   metadata JSONB DEFAULT '{}',
@@ -117,7 +118,7 @@ CREATE TABLE chat_sessions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   title VARCHAR(255) NOT NULL,
   gpt_id UUID NOT NULL REFERENCES gpts(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -147,7 +148,7 @@ CREATE TABLE chat_messages (
 CREATE TABLE memory_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   prompt TEXT NOT NULL,
   response TEXT NOT NULL,
@@ -167,7 +168,7 @@ CREATE TABLE document_reports (
   content TEXT NOT NULL,
   format document_report_format NOT NULL,
   status document_report_status DEFAULT 'generating',
-  generated_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  generated_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -181,7 +182,7 @@ CREATE TABLE document_reports (
 CREATE TABLE document_requests (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   session_id UUID NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   prompt TEXT NOT NULL,
   status document_request_status DEFAULT 'pending',
@@ -196,10 +197,10 @@ CREATE TABLE approval_requests (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   type approval_type NOT NULL,
   status approval_status DEFAULT 'pending',
-  requested_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  requested_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   requested_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  reviewed_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,
   reviewed_at TIMESTAMP WITH TIME ZONE,
   details JSONB NOT NULL DEFAULT '{}',
   notes TEXT,
@@ -218,7 +219,7 @@ CREATE TABLE templates (
   content TEXT NOT NULL,
   type VARCHAR(100) NOT NULL,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  created_by UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   is_public BOOLEAN DEFAULT false,
@@ -231,7 +232,7 @@ CREATE TABLE templates (
 -- Audit logs table
 CREATE TABLE audit_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
   action VARCHAR(255) NOT NULL,
   resource_type VARCHAR(100) NOT NULL,
@@ -247,7 +248,7 @@ CREATE TABLE audit_logs (
 -- Usage analytics table
 CREATE TABLE usage_analytics (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   gpt_id UUID REFERENCES gpts(id) ON DELETE SET NULL,
   session_id UUID REFERENCES chat_sessions(id) ON DELETE SET NULL,
@@ -262,9 +263,9 @@ CREATE TABLE usage_analytics (
 );
 
 -- Create indexes for performance optimization
-CREATE INDEX idx_profiles_team_id ON profiles(team_id);
-CREATE INDEX idx_profiles_role ON profiles(role);
-CREATE INDEX idx_profiles_email ON profiles(email);
+CREATE INDEX idx_users_team_id ON users(team_id);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_email ON users(email);
 
 CREATE INDEX idx_gpts_team_id ON gpts(team_id);
 CREATE INDEX idx_gpts_created_by ON gpts(created_by);
@@ -332,6 +333,23 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Create function to handle new user signups and assign default role and team
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, name, team_id, role)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.email, gen_random_uuid()::text || '@placeholder.local'),
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'name', ''), NEW.email, 'New User'),
+    '9f802d33-149d-476c-824a-a169b56f8742',
+    'user'
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
 -- Create function to update team member count
 CREATE OR REPLACE FUNCTION update_team_member_count()
 RETURNS TRIGGER AS $$
@@ -384,7 +402,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create function to log audit events
+-- Create a more robust audit logging function
 CREATE OR REPLACE FUNCTION log_audit_event()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -397,48 +415,35 @@ BEGIN
   -- Determine action based on operation
   IF TG_OP = 'INSERT' THEN
     action_name := 'CREATE';
+    record_data := to_jsonb(NEW);
   ELSIF TG_OP = 'UPDATE' THEN
     action_name := 'UPDATE';
+    record_data := to_jsonb(NEW) || jsonb_build_object('old_record', to_jsonb(OLD));
   ELSIF TG_OP = 'DELETE' THEN
     action_name := 'DELETE';
+    record_data := to_jsonb(OLD);
   END IF;
   
   -- Extract resource type from table name
   resource_type_name := TG_TABLE_NAME;
   
-  -- Get user_id and team_id based on table structure and operation
-  IF TG_OP = 'DELETE' THEN
-    record_data := to_jsonb(OLD);
-    -- Try to extract user_id from various possible fields
-    user_id_val := CASE 
-      WHEN record_data ? 'user_id' THEN (record_data->>'user_id')::UUID
-      WHEN record_data ? 'created_by' THEN (record_data->>'created_by')::UUID
-      WHEN record_data ? 'uploaded_by' THEN (record_data->>'uploaded_by')::UUID
-      WHEN record_data ? 'generated_by' THEN (record_data->>'generated_by')::UUID
-      WHEN record_data ? 'requested_by' THEN (record_data->>'requested_by')::UUID
-      ELSE NULL
-    END;
-    -- Try to extract team_id
-    team_id_val := CASE 
-      WHEN record_data ? 'team_id' THEN (record_data->>'team_id')::UUID
-      ELSE NULL
-    END;
-  ELSE
-    record_data := to_jsonb(NEW);
-    -- Try to extract user_id from various possible fields
-    user_id_val := CASE 
-      WHEN record_data ? 'user_id' THEN (record_data->>'user_id')::UUID
-      WHEN record_data ? 'created_by' THEN (record_data->>'created_by')::UUID
-      WHEN record_data ? 'uploaded_by' THEN (record_data->>'uploaded_by')::UUID
-      WHEN record_data ? 'generated_by' THEN (record_data->>'generated_by')::UUID
-      WHEN record_data ? 'requested_by' THEN (record_data->>'requested_by')::UUID
-      ELSE NULL
-    END;
-    -- Try to extract team_id
-    team_id_val := CASE 
-      WHEN record_data ? 'team_id' THEN (record_data->>'team_id')::UUID
-      ELSE NULL
-    END;
+  -- Extract user_id and team_id from the record, handling missing columns gracefully
+  user_id_val := NULL;
+  IF record_data ? 'user_id' THEN
+    user_id_val := (record_data->>'user_id')::UUID;
+  ELSIF record_data ? 'created_by' THEN
+    user_id_val := (record_data->>'created_by')::UUID;
+  ELSIF record_data ? 'uploaded_by' THEN
+    user_id_val := (record_data->>'uploaded_by')::UUID;
+  ELSIF record_data ? 'generated_by' THEN
+    user_id_val := (record_data->>'generated_by')::UUID;
+  ELSIF record_data ? 'requested_by' THEN
+    user_id_val := (record_data->>'requested_by')::UUID;
+  END IF;
+
+  team_id_val := NULL;
+  IF record_data ? 'team_id' THEN
+    team_id_val := (record_data->>'team_id')::UUID;
   END IF;
   
   -- Insert audit log
@@ -454,22 +459,19 @@ BEGIN
     team_id_val,
     action_name,
     resource_type_name,
-    CASE 
-      WHEN record_data ? 'id' THEN (record_data->>'id')::UUID
-      ELSE NULL
-    END,
+    (record_data->>'id')::UUID,
     record_data
   );
   
   RETURN COALESCE(NEW, OLD);
 END;
-$$ language 'plpgsql';
+$$ language 'plpgsql' SECURITY DEFINER;
 
 -- Create triggers for updated_at columns
 CREATE TRIGGER update_teams_updated_at BEFORE UPDATE ON teams
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_gpts_updated_at BEFORE UPDATE ON gpts
@@ -494,8 +496,12 @@ CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON templates
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Create triggers for business logic
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 CREATE TRIGGER update_team_member_count_trigger
-  AFTER INSERT OR UPDATE OR DELETE ON profiles
+  AFTER INSERT OR UPDATE OR DELETE ON users
   FOR EACH ROW EXECUTE FUNCTION update_team_member_count();
 
 CREATE TRIGGER update_session_message_count_trigger
@@ -507,6 +513,7 @@ CREATE TRIGGER update_gpt_usage_count_trigger
   FOR EACH ROW EXECUTE FUNCTION update_gpt_usage_count();
 
 -- Create audit triggers for important tables
+-- Note: Do not audit high-volume tables like chat_messages or usage_analytics
 CREATE TRIGGER audit_gpts_trigger
   AFTER INSERT OR UPDATE OR DELETE ON gpts
   FOR EACH ROW EXECUTE FUNCTION log_audit_event();
@@ -527,32 +534,44 @@ CREATE TRIGGER audit_memory_items_trigger
   AFTER INSERT OR UPDATE OR DELETE ON memory_items
   FOR EACH ROW EXECUTE FUNCTION log_audit_event();
 
+CREATE TRIGGER audit_templates_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON templates
+  FOR EACH ROW EXECUTE FUNCTION log_audit_event();
+
+CREATE TRIGGER audit_teams_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON teams
+  FOR EACH ROW EXECUTE FUNCTION log_audit_event();
+
+CREATE TRIGGER audit_users_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON users
+  FOR EACH ROW EXECUTE FUNCTION log_audit_event();
+
 -- Create helper functions for RLS policies
 CREATE OR REPLACE FUNCTION get_user_role(user_id UUID)
 RETURNS user_role AS $$
 BEGIN
-  RETURN (SELECT role FROM profiles WHERE id = user_id);
+  RETURN (SELECT role FROM users WHERE id = user_id);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_user_team_id(user_id UUID)
 RETURNS UUID AS $$
 BEGIN
-  RETURN (SELECT team_id FROM profiles WHERE id = user_id);
+  RETURN (SELECT team_id FROM users WHERE id = user_id);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION is_admin(user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (SELECT role IN ('admin', 'super_admin') FROM profiles WHERE id = user_id);
+  RETURN (SELECT role IN ('admin', 'super_admin') FROM users WHERE id = user_id);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION is_super_admin(user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (SELECT role = 'super_admin' FROM profiles WHERE id = user_id);
+  RETURN (SELECT role = 'super_admin' FROM users WHERE id = user_id);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -571,7 +590,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Comments for documentation
 COMMENT ON TABLE teams IS 'Teams provide multi-tenant data isolation';
-COMMENT ON TABLE profiles IS 'User profiles with role-based access control';
+COMMENT ON TABLE users IS 'User users with role-based access control';
 COMMENT ON TABLE gpts IS 'AI assistant configurations with team isolation';
 COMMENT ON TABLE projects IS 'Project organization within teams';
 COMMENT ON TABLE documents IS 'File storage and management';

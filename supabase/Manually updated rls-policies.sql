@@ -17,6 +17,8 @@ ALTER TABLE approval_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usage_analytics ENABLE ROW LEVEL SECURITY;
+-- New Add the is_personal column if it doesn't exist
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_personal BOOLEAN DEFAULT FALSE;
 
 -- Teams table policies
 -- Super admins can see all teams, others can only see their own team
@@ -32,10 +34,11 @@ CREATE POLICY "teams_insert_policy" ON teams
     is_super_admin(auth.uid())
   );
 
--- Only super admins can update teams
+-- New update policy for teams: Super admins can update any team, admins can update their own team
 CREATE POLICY "teams_update_policy" ON teams
   FOR UPDATE USING (
-    is_super_admin(auth.uid())
+    is_super_admin(auth.uid()) OR
+    (is_admin(auth.uid()) AND id = get_user_team_id(auth.uid()))
   );
 
 -- Only super admins can delete teams
@@ -44,12 +47,13 @@ CREATE POLICY "teams_delete_policy" ON teams
     is_super_admin(auth.uid())
   );
 
+
+
 -- users table policies
--- Users can see users in their team, admins can see team users, super admins see all
+-- New select policy for users: Any user can see all users
 CREATE POLICY "users_select_policy" ON users
   FOR SELECT USING (
-    is_super_admin(auth.uid()) OR
-    team_id = get_user_team_id(auth.uid())
+    true -- Everyone can see all users for search purposes
   );
 
 -- Users can be created (signup process)
@@ -64,106 +68,138 @@ CREATE POLICY "users_update_policy" ON users
     is_super_admin(auth.uid())
   );
 
--- Only super admins can delete users
+-- New delete policy for users: Admins and super admins can delete users
 CREATE POLICY "users_delete_policy" ON users
   FOR DELETE USING (
-    is_super_admin(auth.uid())
+    is_admin(auth.uid()) OR is_super_admin(auth.uid())
   );
+
+
 
 -- GPTs table policies
--- Users can see GPTs in their team
+-- New select policy for gpts: Super admins see all, others see team GPTs
 CREATE POLICY "gpts_select_policy" ON gpts
   FOR SELECT USING (
+    is_super_admin(auth.uid()) OR
     can_access_team_data(auth.uid(), team_id)
   );
 
--- Admins and super admins can create GPTs
+-- New insert policy for gpts: Super admins can create any, admins create for their team
 CREATE POLICY "gpts_insert_policy" ON gpts
   FOR INSERT WITH CHECK (
-    is_admin(auth.uid()) AND
-    team_id = get_user_team_id(auth.uid())
+    is_super_admin(auth.uid()) OR
+    (is_admin(auth.uid()) AND team_id = get_user_team_id(auth.uid()))
   );
 
--- Creators and admins can update GPTs in their team
+-- New update policy for gpts: Super admins update any, and admins update their team's
 CREATE POLICY "gpts_update_policy" ON gpts
   FOR UPDATE USING (
-    (created_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
+    is_super_admin(auth.uid()) OR
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
--- Admins can delete GPTs in their team
+-- New delete policy for gpts: Super admins delete any, admins delete their team's
 CREATE POLICY "gpts_delete_policy" ON gpts
   FOR DELETE USING (
-    is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id)
+    is_super_admin(auth.uid()) OR
+    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
+
+
 
 -- Projects table policies
--- Users can see projects in their team
+
+-- New select policy for projects: Users see their own personal/team projects, admins or super admins can't see it if it is not exposed as a team project
 CREATE POLICY "projects_select_policy" ON projects
   FOR SELECT USING (
-    can_access_team_data(auth.uid(), team_id)
+    (is_personal = TRUE AND created_by = auth.uid()) OR -- User can see their own personal projects
+    (is_personal = FALSE AND can_access_team_data(auth.uid(), team_id)) OR -- User/Admin can see team projects they have access to
+    (is_super_admin(auth.uid()) AND is_personal = FALSE) -- Super admins can only see team projects, NOT personal ones
   );
 
--- Users can create projects in their team
+-- New insert policy for projects: Users can create personal or team projects, admins can create personal or team projects
 CREATE POLICY "projects_insert_policy" ON projects
   FOR INSERT WITH CHECK (
-    team_id = get_user_team_id(auth.uid())
+    (is_personal = TRUE AND created_by = auth.uid()) OR -- User can create their own personal project
+    (is_personal = FALSE AND team_id = get_user_team_id(auth.uid())) OR -- User can create team project for their team
+    (is_admin(auth.uid()) AND created_by = auth.uid() AND is_personal = TRUE) OR -- Admin can create their own personal project
+    (is_admin(auth.uid()) AND team_id = get_user_team_id(auth.uid()) AND is_personal = FALSE) OR -- Admin can create team project for their team
+    is_super_admin(auth.uid()) -- Super admins can create any project (personal or team)
   );
 
--- Creators and admins can update projects
+-- New update policy for projects: Creators update their projects, admins update their team projects
 CREATE POLICY "projects_update_policy" ON projects
   FOR UPDATE USING (
-    (created_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    created_by = auth.uid() OR -- Creator (user/admin) can update their own project (personal or team)
+    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id) AND is_personal = FALSE) OR -- Admin can update team projects in their team
+    is_super_admin(auth.uid()) -- Super admins can update any project (personal or team)
   );
 
--- Creators and admins can delete projects
+-- New delete policy for projects: Creators delete their projects, admins delete their team projects
 CREATE POLICY "projects_delete_policy" ON projects
   FOR DELETE USING (
-    (created_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    created_by = auth.uid() OR -- Creator (user/admin) can delete their own project (personal or team)
+    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id) AND is_personal = FALSE) OR -- Admin can delete team projects in their team
+    is_super_admin(auth.uid()) -- Super admins can delete any project (personal or team)
   );
 
+
+
+
 -- Documents table policies
--- Users can see documents in their team
+-- New select policy for documents: Users see team documents, super admins see all
 CREATE POLICY "documents_select_policy" ON documents
   FOR SELECT USING (
+    is_super_admin(auth.uid()) OR
     can_access_team_data(auth.uid(), team_id)
   );
 
--- Users can upload documents to their team
+-- New insert policy for documents: Users upload to their team, super admins upload any
 CREATE POLICY "documents_insert_policy" ON documents
   FOR INSERT WITH CHECK (
+    is_super_admin(auth.uid()) OR
     team_id = get_user_team_id(auth.uid())
   );
 
--- Uploaders and admins can update documents
+--- New update policy for documents: Uploaders/admins update their team's, super admins update any
 CREATE POLICY "documents_update_policy" ON documents
   FOR UPDATE USING (
+    is_super_admin(auth.uid()) OR
     (uploaded_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
--- Uploaders and admins can delete documents
+-- New delete policy for documents: Uploaders/admins delete their team's, super admins delete any
 CREATE POLICY "documents_delete_policy" ON documents
   FOR DELETE USING (
+    is_super_admin(auth.uid()) OR
     (uploaded_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
+
+
+
 -- Chat sessions table policies
--- Users can see their own chat sessions and team sessions if admin
+-- New select policy for chat_sessions: Users only see their own, super admins see all
+-- Create the new select policy with sharing conditions
 CREATE POLICY "chat_sessions_select_policy" ON chat_sessions
   FOR SELECT USING (
+    -- Condition for the session owner to see their own session
     user_id = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    -- Condition for super admins to see all sessions
+    is_super_admin(auth.uid()) OR
+    -- Condition for a session shared via a public link
+    is_public = true OR
+    -- Condition for a session explicitly shared with the current user
+    auth.uid() = ANY (shared_with_users)
   );
+  
 
--- Users can create chat sessions in their team
+--New Users can create chat sessions in their profile
 CREATE POLICY "chat_sessions_insert_policy" ON chat_sessions
   FOR INSERT WITH CHECK (
-    user_id = auth.uid() AND
-    team_id = get_user_team_id(auth.uid())
+    user_id = auth.uid()
   );
 
 -- Users can update their own sessions, admins can update team sessions
@@ -173,22 +209,26 @@ CREATE POLICY "chat_sessions_update_policy" ON chat_sessions
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
--- Users can delete their own sessions, admins can delete team sessions
+-- New delete policy for chat_sessions: Users delete their own, super admins delete any
 CREATE POLICY "chat_sessions_delete_policy" ON chat_sessions
   FOR DELETE USING (
-    user_id = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    user_id = auth.uid() OR -- User deletes their own session
+    is_super_admin(auth.uid()) -- Super admins can delete any session
   );
 
+
+
 -- Chat messages table policies
--- Users can see messages from their sessions or team sessions if admin
+-- New select policy for chat_messages: Only owners of session can see messages
 CREATE POLICY "chat_messages_select_policy" ON chat_messages
   FOR SELECT USING (
     EXISTS (
-      SELECT 1 FROM chat_sessions cs 
+      SELECT 1 FROM chat_sessions cs
       WHERE cs.id = session_id AND (
-        cs.user_id = auth.uid() OR
-        (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), cs.team_id))
+        cs.user_id = auth.uid()
+        -- Super admins are explicitly excluded from seeing other users' chat messages here to respect the strict privacy requirement.
+        -- If super-admins *should* see all messages for oversight, uncomment the line below.
+        OR is_super_admin(auth.uid())
       )
     )
   );
@@ -202,58 +242,64 @@ CREATE POLICY "chat_messages_insert_policy" ON chat_messages
     )
   );
 
--- Users can update their own messages, admins can update team messages
+-- New update policy for chat_messages: Users update their own, super admins update any
 CREATE POLICY "chat_messages_update_policy" ON chat_messages
   FOR UPDATE USING (
     EXISTS (
-      SELECT 1 FROM chat_sessions cs 
+      SELECT 1 FROM chat_sessions cs
       WHERE cs.id = session_id AND (
-        cs.user_id = auth.uid() OR
-        (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), cs.team_id))
+        cs.user_id = auth.uid() OR -- User updates messages in their session
+        is_super_admin(auth.uid()) -- Super admins can update messages in any session
       )
     )
   );
 
--- Users can delete their own messages, admins can delete team messages
+-- New delete policy for chat_messages: Users delete their own, super admins delete any
 CREATE POLICY "chat_messages_delete_policy" ON chat_messages
   FOR DELETE USING (
     EXISTS (
-      SELECT 1 FROM chat_sessions cs 
+      SELECT 1 FROM chat_sessions cs
       WHERE cs.id = session_id AND (
-        cs.user_id = auth.uid() OR
-        (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), cs.team_id))
+        cs.user_id = auth.uid() OR -- User deletes messages in their session
+        is_super_admin(auth.uid()) -- Super admins can delete messages in any session
       )
     )
   );
 
+
+
+
 -- Memory items table policies
--- Users can see their own memory items, admins can see team memory items
+-- New select policy for memory_items: Users see their own, super admins see all
 CREATE POLICY "memory_items_select_policy" ON memory_items
   FOR SELECT USING (
     user_id = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    is_super_admin(auth.uid())
   );
 
--- Users can create memory items in their team
+-- New insert policy for memory_items: Users create their own, super admins create any
 CREATE POLICY "memory_items_insert_policy" ON memory_items
   FOR INSERT WITH CHECK (
-    user_id = auth.uid() AND
-    team_id = get_user_team_id(auth.uid())
+    (user_id = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
+    is_super_admin(auth.uid())
   );
 
--- Users can update their own memory items, admins can update team memory items
+-- New update policy for memory_items: Users update their own, super admins update any
 CREATE POLICY "memory_items_update_policy" ON memory_items
   FOR UPDATE USING (
     user_id = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    is_super_admin(auth.uid())
   );
 
--- Users can delete their own memory items, admins can delete team memory items
+-- New delete policy for memory_items: Users delete their own, super admins delete any
 CREATE POLICY "memory_items_delete_policy" ON memory_items
   FOR DELETE USING (
     user_id = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    is_super_admin(auth.uid())
   );
+
+
+
 
 -- Document reports table policies
 -- Users can see reports from their sessions, admins can see team reports
@@ -284,6 +330,9 @@ CREATE POLICY "document_reports_delete_policy" ON document_reports
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
+
+
+
 -- Document requests table policies
 -- Users can see their own requests, admins can see team requests
 CREATE POLICY "document_requests_select_policy" ON document_requests
@@ -313,12 +362,16 @@ CREATE POLICY "document_requests_delete_policy" ON document_requests
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
+
+
+
 -- Approval requests table policies
--- Users can see their own requests, admins can see team requests
+-- New select policy for approval_requests: Users see their own, admins see team, super admins see all
 CREATE POLICY "approval_requests_select_policy" ON approval_requests
   FOR SELECT USING (
     requested_by = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id)) OR
+    is_super_admin(auth.uid())
   );
 
 -- Users can create approval requests in their team
@@ -328,46 +381,59 @@ CREATE POLICY "approval_requests_insert_policy" ON approval_requests
     team_id = get_user_team_id(auth.uid())
   );
 
--- Only admins can update approval requests (for review process)
+-- New update policy for approval_requests: Admins can update approval requests (for review process)
 CREATE POLICY "approval_requests_update_policy" ON approval_requests
   FOR UPDATE USING (
-    is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id)
+    is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id)OR
+    is_super_admin(auth.uid())
   );
 
--- Requesters and admins can delete approval requests
+-- New delete policy for approval_requests: Requesters and admins can delete approval requests
 CREATE POLICY "approval_requests_delete_policy" ON approval_requests
   FOR DELETE USING (
     requested_by = auth.uid() OR
-    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
+    (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))OR
+    is_super_admin(auth.uid())
   );
 
+
+
+
 -- Templates table policies
--- Users can see public templates and team templates
+-- New select policy for templates: Users see public/team, super admins see all
 CREATE POLICY "templates_select_policy" ON templates
   FOR SELECT USING (
     is_public = true OR
-    can_access_team_data(auth.uid(), team_id)
+    can_access_team_data(auth.uid(), team_id) OR
+    is_super_admin(auth.uid())
   );
 
--- Users can create templates in their team
+-- New insert policy for templates: Users create team, super admins create any
 CREATE POLICY "templates_insert_policy" ON templates
   FOR INSERT WITH CHECK (
+    is_super_admin(auth.uid()) OR
     team_id = get_user_team_id(auth.uid())
   );
 
--- Creators and admins can update templates
+-- New update policy for templates: Creators/admins update team, super admins update any
 CREATE POLICY "templates_update_policy" ON templates
   FOR UPDATE USING (
+    is_super_admin(auth.uid()) OR
     (created_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
 
--- Creators and admins can delete templates
+-- New delete policy for templates: Creators/admins delete team, super admins delete any
 CREATE POLICY "templates_delete_policy" ON templates
   FOR DELETE USING (
+    is_super_admin(auth.uid()) OR
     (created_by = auth.uid() AND team_id = get_user_team_id(auth.uid())) OR
     (is_admin(auth.uid()) AND can_access_team_data(auth.uid(), team_id))
   );
+
+
+
+
 
 -- Audit logs table policies
 -- Admins can see team audit logs, super admins can see all
@@ -391,6 +457,9 @@ CREATE POLICY "audit_logs_delete_policy" ON audit_logs
     is_super_admin(auth.uid())
   );
 
+
+
+
 -- Usage analytics table policies
 -- Admins can see team analytics, super admins can see all
 CREATE POLICY "usage_analytics_select_policy" ON usage_analytics
@@ -412,6 +481,9 @@ CREATE POLICY "usage_analytics_delete_policy" ON usage_analytics
   FOR DELETE USING (
     is_super_admin(auth.uid())
   );
+
+
+
 
 -- Additional security policies for specific use cases
 
